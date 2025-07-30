@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palette - Color Palette Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            line-height: 1.5;
+        }
+        
+        .container {
+            min-height: 100vh;
+            padding: 1.5rem;
+            max-width: 48rem;
+            margin: 0 auto;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mb-8 {
+            margin-bottom: 2rem;
+        }
+        
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+        
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .mt-4 {
+            margin-top: 1rem;
+        }
+        
+        h1 {
+            font-size: 2.25rem;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tagline {
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .space-y-4 > * + * {
+            margin-top: 1rem;
+        }
+        
+        .space-y-3 > * + * {
+            margin-top: 0.75rem;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .justify-center {
+            justify-content: center;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .gap-2 {
+            gap: 0.5rem;
+        }
+        
+        .gap-3 {
+            gap: 0.75rem;
+        }
+        
+        .gap-4 {
+            gap: 1rem;
+        }
+        
+        .input-container {
+            position: relative;
+            flex: 1;
+        }
+        
+        .color-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 0.75rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 0.25rem;
+            border: 1px solid #d1d5db;
+        }
+        
+        .input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            outline: none;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+        
+        .input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .input.error {
+            border-color: #ef4444;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background-color: #2563eb;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .select {
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            background: white;
+            outline: none;
+            width: 100%;
+        }
+        
+        .select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .palette-container {
+            background: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .palette-colors {
+            display: flex;
+            height: 120px;
+        }
+        
+        .palette-color {
+            flex: 1;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .palette-color:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        
+        .palette-color.locked {
+            position: relative;
+        }
+        
+        .lock-icon {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+        
+        .color-hex {
+            position: absolute;
+            bottom: 0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .palette-color:hover .color-hex {
+            opacity: 1;
+        }
+        
+        .palette-info {
+            padding: 1rem;
+        }
+        
+        .palette-name {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+        
+        .palette-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .palette-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .font-mono {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+        
+        .font-medium {
+            font-weight: 500;
+        }
+        
+        .font-semibold {
+            font-weight: 600;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+        }
+        
+        .text-gray-600 {
+            color: #6b7280;
+        }
+        
+        .text-gray-900 {
+            color: #111827;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .message-box {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .message-success {
+            background-color: #f0fdf4;
+            color: #166534;
+        }
+        
+        .message-error {
+            background-color: #fef2f2;
+            color: #991b1b;
+        }
+        
+        .message-warning {
+            background-color: #fefce8;
+            color: #92400e;
+        }
+        
+        .icon {
+            width: 1rem;
+            height: 1rem;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+        
+        .error-text {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.875rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="text-center mb-8">
+            <h1>Palette</h1>
+            <p class="tagline">Generate beautiful color palettes from your prominent color.</p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="mb-6 card">
+            <h3 class="font-semibold text-gray-900 mb-4">Dominant Color</h3>
+            <div class="mb-4">
+                <div class="flex gap-2">
+                    <div class="input-container">
+                        <div class="color-icon" id="colorIcon" style="background-color: #3b82f6;"></div>
+                        <input 
+                            type="text" 
+                            id="colorInput" 
+                            class="input" 
+                            placeholder="3" 
+                            value="3"
+                            oninput="validateColor(this.value)"
+                            onkeypress="handleKeyPress(event)"
+                        />
+                    </div>
+                </div>
+                <div id="colorError" class="error-text hidden">
+                    Color number not found. Try: 1-30 (e.g., 1 for Coral Red, 2 for Ocean Blue, 3 for Sky Blue, etc.)
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div>
+                    <label class="font-medium text-gray-900 mb-2" style="display: block;">Palette Size</label>
+                    <select class="select" id="paletteSize">
+                        <option value="3" selected>3 colors</option>
+                        <option value="4">4 colors</option>
+                        <option value="5">5 colors</option>
+                        <option value="6">6 colors</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="font-medium text-gray-900 mb-2" style="display: block;">Theme</label>
+                    <select class="select" id="themeSelect">
+                        <option value="harmonious">Harmonious - Similar colors</option>
+                        <option value="contrasting">Contrasting - Opposite colors</option>
+                        <option value="warm">Warm - Reds, oranges, yellows</option>
+                        <option value="cool">Cool - Blues, greens, purples</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <div class="mb-6 text-center">
+            <button onclick="generatePalette()" class="btn btn-primary" id="generateBtn">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+                </svg>
+                Generate Palette
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-semibold text-gray-900">Generated Palette</h3>
+                <div class="text-sm text-gray-600">
+                    Click colors to lock/unlock • Locked colors stay when regenerating
+                </div>
+            </div>
+            
+            <div id="paletteContainer" class="palette-container">
+                <!-- Palette will be generated here -->
+            </div>
+        </div>
+
+        <!-- Message Box -->
+        <div id="messageBox" class="message-box message-success hidden">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="messageText">Palette generated successfully!</span>
+        </div>
+    </div>
+
+    <script>
+        // Curated color database - 30 colors with assigned numbers
+        const colorDatabase = [
+            { id: 1, name: 'Coral Red', hex: '#FF6B6B', family: 'warm' },
+            { id: 2, name: 'Ocean Blue', hex: '#4ECDC4', family: 'cool' },
+            { id: 3, name: 'Sky Blue', hex: '#45B7D1', family: 'cool' },
+            { id: 4, name: 'Sunset Orange', hex: '#FFA07A', family: 'warm' },
+            { id: 5, name: 'Forest Green', hex: '#98D8C8', family: 'cool' },
+            { id: 6, name: 'Golden Yellow', hex: '#F7DC6F', family: 'warm' },
+            { id: 7, name: 'Lavender', hex: '#BB8FCE', family: 'cool' },
+            { id: 8, name: 'Rose Pink', hex: '#F1948A', family: 'warm' },
+            { id: 9, name: 'Mint Green', hex: '#82E0AA', family: 'cool' },
+            { id: 10, name: 'Peach', hex: '#FADBD8', family: 'warm' },
+            { id: 11, name: 'Teal', hex: '#48C9B0', family: 'cool' },
+            { id: 12, name: 'Amber', hex: '#F8C471', family: 'warm' },
+            { id: 13, name: 'Periwinkle', hex: '#A569BD', family: 'cool' },
+            { id: 14, name: 'Salmon', hex: '#EC7063', family: 'warm' },
+            { id: 15, name: 'Seafoam', hex: '#7FB3D3', family: 'cool' },
+            { id: 16, name: 'Cream', hex: '#FDEBD0', family: 'warm' },
+            { id: 17, name: 'Lilac', hex: '#D2B4DE', family: 'cool' },
+            { id: 18, name: 'Apricot', hex: '#F5B7B1', family: 'warm' },
+            { id: 19, name: 'Powder Blue', hex: '#AED6F1', family: 'cool' },
+            { id: 20, name: 'Butterscotch', hex: '#F9E79F', family: 'warm' },
+            { id: 21, name: 'Sage Green', hex: '#A9DFBF', family: 'cool' },
+            { id: 22, name: 'Blush', hex: '#FADBD8', family: 'warm' },
+            { id: 23, name: 'Steel Blue', hex: '#5DADE2', family: 'cool' },
+            { id: 24, name: 'Honey', hex: '#F4D03F', family: 'warm' },
+            { id: 25, name: 'Mint', hex: '#ABEBC6', family: 'cool' },
+            { id: 26, name: 'Terra Cotta', hex: '#E8DAEF', family: 'warm' },
+            { id: 27, name: 'Aqua', hex: '#76D7C4', family: 'cool' },
+            { id: 28, name: 'Sand', hex: '#F8D7DA', family: 'warm' },
+            { id: 29, name: 'Slate', hex: '#85C1E9', family: 'cool' },
+            { id: 30, name: 'Ivory', hex: '#FBEEE6', family: 'warm' }
+        ];
+
+        let currentPalette = [];
+        let lockedColors = new Set();
+        let dominantColor = 3; // Default to Sky Blue
+        let dominantColorLocked = true; // Dominant color starts locked by default
+
+        // Color validation
+        function validateColor(input) {
+            const inputField = document.getElementById('colorInput');
+            const colorIcon = document.getElementById('colorIcon');
+            const errorDiv = document.getElementById('colorError');
+            const generateBtn = document.getElementById('generateBtn');
+
+            // Parse the input as a number
+            const colorId = parseInt(input);
+
+            // Check if input is a valid number and within range
+            if (isNaN(colorId) || colorId < 1 || colorId > 30) {
+                inputField.classList.add('error');
+                errorDiv.classList.remove('hidden');
+                generateBtn.disabled = true;
+                return false;
+            }
+
+            // Find color by ID
+            const foundColor = colorDatabase.find(color => color.id === colorId);
+
+            if (foundColor) {
+                inputField.classList.remove('error');
+                errorDiv.classList.add('hidden');
+                colorIcon.style.backgroundColor = foundColor.hex;
+                dominantColor = colorId;
+                dominantColorLocked = true; // Reset to locked when changing dominant color
+                generateBtn.disabled = false;
+                return true;
+            } else {
+                inputField.classList.add('error');
+                errorDiv.classList.remove('hidden');
+                generateBtn.disabled = true;
+                return false;
+            }
+        }
+
+        function isValidHex(hex) {
+            return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !document.getElementById('generateBtn').disabled) {
+                generatePalette();
+            }
+        }
+
+        // Palette generation
+        function generatePalette() {
+            if (!validateColor(dominantColor)) return;
+
+            const size = parseInt(document.getElementById('paletteSize').value);
+            const theme = document.getElementById('themeSelect').value;
+            
+            // Get dominant color info by ID
+            const dominantColorInfo = colorDatabase.find(c => c.id === dominantColor);
+
+            // Reset locks and add dominant color as locked if it should be
+            lockedColors.clear();
+            if (dominantColorLocked) {
+                lockedColors.add(dominantColor);
+            }
+
+            // Generate palette
+            currentPalette = createPalette(dominantColorInfo, theme, size);
+            displayPalette();
+            
+            document.getElementById('resultsSection').classList.remove('hidden');
+            showMessage('Palette generated successfully!', 'success');
+        }
+
+        function createPalette(dominantColor, theme, size) {
+            let availableColors = [...colorDatabase];
+            let palette = [];
+
+            // Remove all locked colors from available colors first
+            lockedColors.forEach(colorId => {
+                availableColors = availableColors.filter(c => c.id !== colorId);
+            });
+
+            // Handle locked colors first
+            if (lockedColors.size > 0) {
+                // Add locked colors to palette (they keep their relative positions)
+                lockedColors.forEach(colorId => {
+                    const lockedColor = colorDatabase.find(c => c.id === colorId);
+                    if (lockedColor) {
+                        palette.push(lockedColor);
+                    }
+                });
+                
+                // Add dominant color if not already locked
+                if (!lockedColors.has(dominantColor.id)) {
+                    palette.push(dominantColor);
+                    availableColors = availableColors.filter(c => c.id !== dominantColor.id);
+                }
+            } else {
+                // Start fresh with dominant color
+                palette.push(dominantColor);
+                availableColors = availableColors.filter(c => c.id !== dominantColor.id);
+            }
+
+            // Calculate how many more colors we need
+            const remainingSlots = size - palette.length;
+            let selectedColors = [];
+
+            if (remainingSlots > 0) {
+                switch (theme) {
+                    case 'harmonious':
+                        selectedColors = getHarmoniousColors(dominantColor, availableColors, remainingSlots);
+                        break;
+                    case 'contrasting':
+                        selectedColors = getContrastingColors(dominantColor, availableColors, remainingSlots);
+                        break;
+                    case 'warm':
+                        selectedColors = getThemeColors(availableColors, 'warm', remainingSlots);
+                        break;
+                    case 'cool':
+                        selectedColors = getThemeColors(availableColors, 'cool', remainingSlots);
+                        break;
+                }
+
+                // Add the selected colors to palette
+                palette.push(...selectedColors);
+            }
+
+            // Shuffle the final palette to mix locked and new colors
+            return shuffleArray(palette).slice(0, size);
+        }
+
+        function getHarmoniousColors(dominantColor, availableColors, count) {
+            // Get colors from same family or similar hues
+            const sameFamily = shuffleArray(availableColors.filter(c => c.family === dominantColor.family));
+            const otherColors = shuffleArray(availableColors.filter(c => c.family !== dominantColor.family));
+            
+            // Prefer same family, then others, but randomize the selection
+            const selected = [];
+            let sameFamilyIndex = 0;
+            let otherIndex = 0;
+            
+            for (let i = 0; i < count; i++) {
+                if (sameFamilyIndex < sameFamily.length && Math.random() > 0.3) {
+                    selected.push(sameFamily[sameFamilyIndex]);
+                    sameFamilyIndex++;
+                } else if (otherIndex < otherColors.length) {
+                    selected.push(otherColors[otherIndex]);
+                    otherIndex++;
+                } else if (sameFamilyIndex < sameFamily.length) {
+                    selected.push(sameFamily[sameFamilyIndex]);
+                    sameFamilyIndex++;
+                }
+            }
+            
+            return selected;
+        }
+
+        function getContrastingColors(dominantColor, availableColors, count) {
+            // Get colors from opposite family
+            const oppositeFamily = dominantColor.family === 'warm' ? 'cool' : 'warm';
+            const contrasting = shuffleArray(availableColors.filter(c => c.family === oppositeFamily));
+            const others = shuffleArray(availableColors.filter(c => c.family !== oppositeFamily));
+            
+            // Prefer contrasting colors first
+            const selected = [];
+            let contrastingIndex = 0;
+            let otherIndex = 0;
+            
+            for (let i = 0; i < count; i++) {
+                if (contrastingIndex < contrasting.length && Math.random() > 0.2) {
+                    selected.push(contrasting[contrastingIndex]);
+                    contrastingIndex++;
+                } else if (otherIndex < others.length) {
+                    selected.push(others[otherIndex]);
+                    otherIndex++;
+                } else if (contrastingIndex < contrasting.length) {
+                    selected.push(contrasting[contrastingIndex]);
+                    contrastingIndex++;
+                }
+            }
+            
+            return selected;
+        }
+
+        function getThemeColors(availableColors, family, count) {
+            const themeColors = shuffleArray(availableColors.filter(c => c.family === family));
+            const otherColors = shuffleArray(availableColors.filter(c => c.family !== family));
+            
+            // Prefer theme colors first
+            const selected = [];
+            let themeIndex = 0;
+            let otherIndex = 0;
+            
+            for (let i = 0; i < count; i++) {
+                if (themeIndex < themeColors.length && Math.random() > 0.25) {
+                    selected.push(themeColors[themeIndex]);
+                    themeIndex++;
+                } else if (otherIndex < otherColors.length) {
+                    selected.push(otherColors[otherIndex]);
+                    otherIndex++;
+                } else if (themeIndex < themeColors.length) {
+                    selected.push(themeColors[themeIndex]);
+                    themeIndex++;
+                }
+            }
+            
+            return selected;
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Display palette
+        function displayPalette() {
+            const container = document.getElementById('paletteContainer');
+            const size = parseInt(document.getElementById('paletteSize').value);
+            const theme = document.getElementById('themeSelect').value;
+            
+            const colorsHtml = currentPalette.map((color, index) => {
+                const isLocked = lockedColors.has(color.id);
+                return `
+                    <div class="palette-color ${isLocked ? 'locked' : ''}" 
+                         style="background-color: ${color.hex};" 
+                         onclick="toggleColorLock(${index}, ${color.id})"
+                         title="Click to ${isLocked ? 'unlock' : 'lock'} • ${color.name}">
+                        ${isLocked ? '<div class="lock-icon">🔒</div>' : ''}
+                        <div class="color-hex">#${color.id}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="palette-colors">
+                    ${colorsHtml}
+                </div>
+                <div class="palette-info">
+                    <div class="palette-name">${theme.charAt(0).toUpperCase() + theme.slice(1)} Palette (${currentPalette.length} colors)</div>
+                    <div class="palette-description">
+                        Generated from #${dominantColor} • ${lockedColors.size} color${lockedColors.size !== 1 ? 's' : ''} locked
+                    </div>
+                    <div class="palette-actions">
+                        <button class="btn btn-secondary btn-small" onclick="regeneratePalette()">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Regenerate
+                        </button>
+                        <button class="btn btn-primary btn-small" onclick="savePalette()">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2z"></path>
+                            </svg>
+                            Save Palette
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Color locking
+        function toggleColorLock(index, colorId) {
+            if (lockedColors.has(colorId)) {
+                lockedColors.delete(colorId);
+                // If unlocking the dominant color, mark it as no longer the dominant
+                if (colorId === dominantColor) {
+                    dominantColorLocked = false;
+                }
+                showMessage(`Unlocked #${colorId}`, 'success');
+            } else {
+                lockedColors.add(colorId);
+                showMessage(`Locked #${colorId}`, 'success');
+            }
+            
+            // Update display
+            displayPalette();
+        }
+
+        function regeneratePalette() {
+            const size = parseInt(document.getElementById('paletteSize').value);
+            const theme = document.getElementById('themeSelect').value;
+            
+            const dominantColorInfo = colorDatabase.find(c => c.id === dominantColor);
+
+            currentPalette = createPalette(dominantColorInfo, theme, size);
+            displayPalette();
+            
+            showMessage('Palette regenerated with locked colors preserved!', 'success');
+        }
+
+        function savePalette() {
+            const paletteText = currentPalette.map(c => `#${c.id} - ${c.name}: ${c.hex}`).join('\n');
+            
+            navigator.clipboard.writeText(paletteText).then(() => {
+                showMessage('Palette copied to clipboard!', 'success');
+            }).catch(() => {
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = paletteText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showMessage('Palette copied to clipboard!', 'success');
+            });
+        }
+
+        function showMessage(text, type = 'success') {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            
+            messageText.textContent = text;
+            messageBox.className = `message-box message-${type}`;
+            messageBox.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            validateColor('3');
+            // Set initial color icon
+            const initialColor = colorDatabase.find(c => c.id === 3);
+            if (initialColor) {
+                document.getElementById('colorIcon').style.backgroundColor = initialColor.hex;
+            }
+        });
+    </script>
+</body>
+</html>
