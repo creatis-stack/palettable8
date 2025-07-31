@@ -349,6 +349,38 @@
             margin-top: 0.25rem;
         }
         
+        .color-info {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #475569;
+        }
+        
+        .color-info-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .color-info-details {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.25rem;
+        }
+        
+        .color-info-hex {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: #f1f5f9;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+        }
+        
+        .color-info-temp {
+            text-transform: capitalize;
+        }
+        
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.875rem;
@@ -364,6 +396,11 @@
             
             .form-row {
                 grid-template-columns: 1fr;
+            }
+            
+            .color-info-details {
+                flex-direction: column;
+                gap: 0.5rem;
             }
         }
     </style>
@@ -394,6 +431,13 @@
                 </div>
                 <div id="colorError" class="error-text hidden">
                     Color number not found. Try: 1-30 (e.g., 1 for Coral Red, 2 for Ocean Blue, 3 for Sky Blue, etc.)
+                </div>
+                <div id="colorInfo" class="color-info">
+                    <div class="color-info-name" id="colorInfoName">Sky Blue</div>
+                    <div class="color-info-details">
+                        <div>Hex: <span class="color-info-hex" id="colorInfoHex">#45B7D1</span></div>
+                        <div>Temperature: <span class="color-info-temp" id="colorInfoTemp">cool</span></div>
+                    </div>
                 </div>
             </div>
             
@@ -493,11 +537,12 @@
         let dominantColor = 3; // Default to Sky Blue
         let dominantColorLocked = true; // Dominant color starts locked by default
 
-        // Color validation
+        // Color validation and info display
         function validateColor(input) {
             const inputField = document.getElementById('colorInput');
             const colorIcon = document.getElementById('colorIcon');
             const errorDiv = document.getElementById('colorError');
+            const colorInfoDiv = document.getElementById('colorInfo');
             const generateBtn = document.getElementById('generateBtn');
 
             // Parse the input as a number
@@ -507,6 +552,7 @@
             if (isNaN(colorId) || colorId < 1 || colorId > 30) {
                 inputField.classList.add('error');
                 errorDiv.classList.remove('hidden');
+                colorInfoDiv.classList.add('hidden');
                 generateBtn.disabled = true;
                 return false;
             }
@@ -521,13 +567,25 @@
                 dominantColor = colorId;
                 dominantColorLocked = true; // Reset to locked when changing dominant color
                 generateBtn.disabled = false;
+                
+                // Update color info display
+                updateColorInfo(foundColor);
+                colorInfoDiv.classList.remove('hidden');
+                
                 return true;
             } else {
                 inputField.classList.add('error');
                 errorDiv.classList.remove('hidden');
+                colorInfoDiv.classList.add('hidden');
                 generateBtn.disabled = true;
                 return false;
             }
+        }
+
+        function updateColorInfo(color) {
+            document.getElementById('colorInfoName').textContent = color.name;
+            document.getElementById('colorInfoHex').textContent = color.hex;
+            document.getElementById('colorInfoTemp').textContent = color.family;
         }
 
         function isValidHex(hex) {
@@ -822,6 +880,7 @@
             const initialColor = colorDatabase.find(c => c.id === 3);
             if (initialColor) {
                 document.getElementById('colorIcon').style.backgroundColor = initialColor.hex;
+                updateColorInfo(initialColor);
             }
         });
     </script>
