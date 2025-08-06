@@ -430,13 +430,13 @@
                     </div>
                 </div>
                 <div id="colorError" class="error-text hidden">
-                    Color number not found. Try: 1-30 (e.g., 1 for Coral Red, 2 for Ocean Blue, 3 for Sky Blue, etc.)
+                    Color number not found. Try: 1-32 (e.g., 1 for Lilac Taupe, 2 for Pale Champagne, 3 for Petal Pink, etc.)
                 </div>
                 <div id="colorInfo" class="color-info">
-                    <div class="color-info-name" id="colorInfoName">Sky Blue</div>
+                    <div class="color-info-name" id="colorInfoName">Petal Pink</div>
                     <div class="color-info-details">
-                        <div>Hex: <span class="color-info-hex" id="colorInfoHex">#45B7D1</span></div>
-                        <div>Temperature: <span class="color-info-temp" id="colorInfoTemp">cool</span></div>
+                        <div>Hex: <span class="color-info-hex" id="colorInfoHex">#FCF1EF</span></div>
+                        <div>Temperature: <span class="color-info-temp" id="colorInfoTemp">warm</span></div>
                     </div>
                 </div>
             </div>
@@ -498,7 +498,7 @@
     </div>
 
     <script>
-        // Curated color database - 30 colors with assigned numbers
+        // Curated color database - 32 colors with assigned numbers
         const colorDatabase = [
             { id: 1, name: 'Lilac Taupe', hex: '#8A7EA6', family: 'cool' },
             { id: 2, name: 'Pale Champagne', hex: '#E6E2b2', family: 'warm' },
@@ -529,12 +529,14 @@
             { id: 27, name: 'Mocha Mousse', hex: '#A47B67', family: 'warm' },
             { id: 28, name: 'Forest Fern', hex: '#52684B', family: 'warm' },
             { id: 29, name: 'Brick Red', hex: '#7F3336', family: 'warm' },
-            { id: 30, name: 'Lemongrass', hex: '#D6CF8D', family: 'warm' }
+            { id: 30, name: 'Lemongrass', hex: '#D6CF8D', family: 'warm' },
+            { id: 31, name: 'Winter Pear', hex: '#899064', family: 'warm' },
+            { id: 32, name: 'Tomato Cream', hex: '#B15533', family: 'warm' }
         ];
 
         let currentPalette = [];
         let lockedColors = new Set();
-        let dominantColor = 3; // Default to Sky Blue
+        let dominantColor = 3; // Default to Petal Pink
         let dominantColorLocked = true; // Dominant color starts locked by default
 
         // Color validation and info display
@@ -549,7 +551,7 @@
             const colorId = parseInt(input);
 
             // Check if input is a valid number and within range
-            if (isNaN(colorId) || colorId < 1 || colorId > 30) {
+            if (isNaN(colorId) || colorId < 1 || colorId > 32) {
                 inputField.classList.add('error');
                 errorDiv.classList.remove('hidden');
                 colorInfoDiv.classList.add('hidden');
