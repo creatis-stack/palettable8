@@ -453,14 +453,19 @@
                 </div>
                 
                 <div>
-                    <label class="font-medium text-gray-900 mb-2" style="display: block;">Theme</label>
-                    <select class="select" id="themeSelect">
-                        <option value="harmonious">Harmonious - Similar colors</option>
-                        <option value="contrasting">Contrasting - Opposite colors</option>
-                        <option value="warm">Warm - Reds, oranges, yellows</option>
-                        <option value="cool">Cool - Blues, greens, purples</option>
+                    <label class="font-medium text-gray-900 mb-2" style="display: block;">Theme Category</label>
+                    <select class="select" id="themeLens" onchange="updateThemeOptions()">
+                        <option value="technical">Designer's Lens (Technical)</option>
+                        <option value="mood">Mood & Style Lens</option>
                     </select>
                 </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="font-medium text-gray-900 mb-2" style="display: block;">Theme</label>
+                <select class="select" id="themeSelect">
+                    <!-- Options populated by updateThemeOptions() -->
+                </select>
             </div>
         </div>
 
@@ -498,46 +503,80 @@
     </div>
 
     <script>
-        // Curated color database - 32 colors with assigned numbers
+        // Enhanced color database with mood/style properties
         const colorDatabase = [
-            { id: 1, name: 'Lilac Taupe', hex: '#8A7EA6', family: 'cool' },
-            { id: 2, name: 'Pale Champagne', hex: '#E6E2b2', family: 'warm' },
-            { id: 3, name: 'Petal Pink', hex: '#FCF1EF', family: 'warm' },
-            { id: 4, name: 'Creamy Salmon', hex: '#ECC7BA', family: 'warm' },
-            { id: 5, name: 'Dark Sage', hex: '#7C7C4A', family: 'warm' },
-            { id: 6, name: 'Pale Maroon', hex: '#A05B5F', family: 'warm' },
-            { id: 7, name: 'Muted Khaki', hex: '#B3A569', family: 'warm' },
-            { id: 8, name: 'Golden Rod', hex: '#C2B356', family: 'warm' },
-            { id: 9, name: 'Creamy Lemon', hex: '#FEE1A1', family: 'warm' },
-            { id: 10, name: 'Black', hex: '#000000', family: 'neutral' },
-            { id: 11, name: 'Burgundy', hex: '#A24A63', family: 'warm' },
-            { id: 12, name: 'Rose Quartz', hex: '#C3788D', family: 'warm' },
-            { id: 13, name: 'Olive Green', hex: '#5F5A3C', family: 'warm' },
-            { id: 14, name: 'Misty Teal', hex: '#5E7875', family: 'cool' },
-            { id: 15, name: 'Dark Maroon', hex: '#C2B356', family: 'warm' },
-            { id: 16, name: 'Olive Brown', hex: '#7C774D', family: 'warm' },
-            { id: 17, name: 'Slate Gray', hex: '#7D8985', family: 'cool' },
-            { id: 18, name: 'Chocolate Brown', hex: '#6F625A', family: 'warm' },
-            { id: 19, name: 'Pastel Teal', hex: '#9EBAB5', family: 'cool' },
-            { id: 20, name: 'Mint Ice', hex: '#C9D6CF', family: 'cool' },
-            { id: 21, name: 'Soft Stone', hex: '#96928C', family: 'cool' },
-            { id: 22, name: 'Earth Brown', hex: '#877E72', family: 'warm' },
-            { id: 23, name: 'Harbor Mist', hex: '#A3B2BB', family: 'cool' },
-            { id: 24, name: 'Midnight Slate', hex: '#364A57', family: 'cool' },
-            { id: 25, name: 'Dusty Coral', hex: '#CD7C73', family: 'warm' },
-            { id: 26, name: 'Sage Green', hex: '#839D77', family: 'warm' },
-            { id: 27, name: 'Mocha Mousse', hex: '#A47B67', family: 'warm' },
-            { id: 28, name: 'Forest Fern', hex: '#52684B', family: 'warm' },
-            { id: 29, name: 'Brick Red', hex: '#7F3336', family: 'warm' },
-            { id: 30, name: 'Lemongrass', hex: '#D6CF8D', family: 'warm' },
-            { id: 31, name: 'Winter Pear', hex: '#899064', family: 'warm' },
-            { id: 32, name: 'Tomato Cream', hex: '#B15533', family: 'warm' }
+            { id: 1, name: 'Lilac Taupe', hex: '#8A7EA6', family: 'cool', intensity: 'muted', style: ['vintage', 'romantic'] },
+            { id: 2, name: 'Pale Champagne', hex: '#E6E2B2', family: 'warm', intensity: 'light', style: ['vintage', 'romantic', 'minimal'] },
+            { id: 3, name: 'Petal Pink', hex: '#FCF1EF', family: 'warm', intensity: 'light', style: ['romantic', 'minimal'] },
+            { id: 4, name: 'Creamy Salmon', hex: '#ECC7BA', family: 'warm', intensity: 'light', style: ['romantic', 'vintage'] },
+            { id: 5, name: 'Dark Sage', hex: '#7C7C4A', family: 'warm', intensity: 'muted', style: ['earthy', 'vintage'] },
+            { id: 6, name: 'Pale Maroon', hex: '#A05B5F', family: 'warm', intensity: 'muted', style: ['vintage', 'earthy'] },
+            { id: 7, name: 'Muted Khaki', hex: '#B3A569', family: 'warm', intensity: 'muted', style: ['earthy', 'vintage'] },
+            { id: 8, name: 'Golden Rod', hex: '#C2B356', family: 'warm', intensity: 'medium', style: ['earthy', 'vintage'] },
+            { id: 9, name: 'Creamy Lemon', hex: '#FEE1A1', family: 'warm', intensity: 'light', style: ['playful', 'romantic'] },
+            { id: 10, name: 'Black', hex: '#000000', family: 'neutral', intensity: 'bold', style: ['modern', 'bold', 'luxury'] },
+            { id: 11, name: 'Burgundy', hex: '#A24A63', family: 'warm', intensity: 'bold', style: ['luxury', 'bold', 'vintage'] },
+            { id: 12, name: 'Rose Quartz', hex: '#C3788D', family: 'warm', intensity: 'medium', style: ['romantic', 'vintage'] },
+            { id: 13, name: 'Olive Green', hex: '#5F5A3C', family: 'warm', intensity: 'muted', style: ['earthy', 'vintage'] },
+            { id: 14, name: 'Misty Teal', hex: '#5E7875', family: 'cool', intensity: 'muted', style: ['earthy', 'modern'] },
+            { id: 15, name: 'Dark Maroon', hex: '#C2B356', family: 'warm', intensity: 'bold', style: ['luxury', 'bold'] },
+            { id: 16, name: 'Olive Brown', hex: '#7C774D', family: 'warm', intensity: 'muted', style: ['earthy', 'vintage'] },
+            { id: 17, name: 'Slate Gray', hex: '#7D8985', family: 'neutral', intensity: 'medium', style: ['modern', 'minimal'] },
+            { id: 18, name: 'Chocolate Brown', hex: '#6F625A', family: 'warm', intensity: 'muted', style: ['earthy', 'luxury'] },
+            { id: 19, name: 'Pastel Teal', hex: '#9EBAB5', family: 'cool', intensity: 'light', style: ['minimal', 'romantic'] },
+            { id: 20, name: 'Mint Ice', hex: '#C9D6CF', family: 'cool', intensity: 'light', style: ['minimal', 'modern'] },
+            { id: 21, name: 'Soft Stone', hex: '#96928C', family: 'neutral', intensity: 'light', style: ['minimal', 'modern'] },
+            { id: 22, name: 'Earth Brown', hex: '#877E72', family: 'warm', intensity: 'muted', style: ['earthy', 'minimal'] },
+            { id: 23, name: 'Harbor Mist', hex: '#A3B2BB', family: 'cool', intensity: 'light', style: ['minimal', 'modern'] },
+            { id: 24, name: 'Midnight Slate', hex: '#364A57', family: 'cool', intensity: 'bold', style: ['modern', 'luxury', 'bold'] },
+            { id: 25, name: 'Dusty Coral', hex: '#CD7C73', family: 'warm', intensity: 'medium', style: ['romantic', 'vintage'] },
+            { id: 26, name: 'Sage Green', hex: '#839D77', family: 'warm', intensity: 'muted', style: ['earthy', 'minimal'] },
+            { id: 27, name: 'Mocha Mousse', hex: '#A47B67', family: 'warm', intensity: 'muted', style: ['earthy', 'luxury'] },
+            { id: 28, name: 'Forest Fern', hex: '#52684B', family: 'warm', intensity: 'bold', style: ['earthy', 'bold'] },
+            { id: 29, name: 'Brick Red', hex: '#7F3336', family: 'warm', intensity: 'bold', style: ['bold', 'luxury'] },
+            { id: 30, name: 'Lemongrass', hex: '#D6CF8D', family: 'warm', intensity: 'light', style: ['playful', 'earthy'] },
+            { id: 31, name: 'Winter Pear', hex: '#899064', family: 'warm', intensity: 'muted', style: ['earthy', 'vintage'] },
+            { id: 32, name: 'Tomato Cream', hex: '#B15533', family: 'warm', intensity: 'bold', style: ['bold', 'earthy'] }
         ];
 
         let currentPalette = [];
         let lockedColors = new Set();
         let dominantColor = 3; // Default to Petal Pink
         let dominantColorLocked = true; // Dominant color starts locked by default
+
+        // Theme options for each category
+        const themeOptions = {
+            technical: [
+                { value: 'harmonious', label: 'Harmonious – Similar Colors (Analogous)' },
+                { value: 'contrasting', label: 'Contrasting – Opposite Colors (Complementary)' },
+                { value: 'warm', label: 'Warm – Reds, Oranges, Yellows' },
+                { value: 'cool', label: 'Cool – Blues, Greens, Purples' },
+                { value: 'neutral', label: 'Neutral – Balanced tones, grays, beiges' }
+            ],
+            mood: [
+                { value: 'modern', label: 'Modern – Clean, minimal, high-contrast neutrals' },
+                { value: 'earthy', label: 'Earthy – Natural, muted, clay, sand, forest' },
+                { value: 'playful', label: 'Playful – Bright, saturated, fun tones' },
+                { value: 'vintage', label: 'Vintage – Faded, retro-inspired' },
+                { value: 'romantic', label: 'Romantic – Soft pastels, warm pinks, creams' },
+                { value: 'bold', label: 'Bold – Striking, deep, attention-grabbing colors' },
+                { value: 'luxury', label: 'Luxury – Deep jewel tones, rich colors' },
+                { value: 'minimal', label: 'Minimal – Soft neutrals, light grays, whites' }
+            ]
+        };
+
+        function updateThemeOptions() {
+            const themeLens = document.getElementById('themeLens').value;
+            const themeSelect = document.getElementById('themeSelect');
+            
+            themeSelect.innerHTML = '';
+            themeOptions[themeLens].forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option.value;
+                optionElement.textContent = option.label;
+                themeSelect.appendChild(optionElement);
+            });
+        }
 
         // Color validation and info display
         function validateColor(input) {
@@ -672,6 +711,33 @@
                     case 'cool':
                         selectedColors = getThemeColors(availableColors, 'cool', remainingSlots);
                         break;
+                    case 'neutral':
+                        selectedColors = getNeutralColors(availableColors, remainingSlots);
+                        break;
+                    case 'modern':
+                        selectedColors = getStyleColors(availableColors, 'modern', remainingSlots);
+                        break;
+                    case 'earthy':
+                        selectedColors = getStyleColors(availableColors, 'earthy', remainingSlots);
+                        break;
+                    case 'playful':
+                        selectedColors = getStyleColors(availableColors, 'playful', remainingSlots);
+                        break;
+                    case 'vintage':
+                        selectedColors = getStyleColors(availableColors, 'vintage', remainingSlots);
+                        break;
+                    case 'romantic':
+                        selectedColors = getStyleColors(availableColors, 'romantic', remainingSlots);
+                        break;
+                    case 'bold':
+                        selectedColors = getBoldColors(availableColors, remainingSlots);
+                        break;
+                    case 'luxury':
+                        selectedColors = getStyleColors(availableColors, 'luxury', remainingSlots);
+                        break;
+                    case 'minimal':
+                        selectedColors = getMinimalColors(availableColors, remainingSlots);
+                        break;
                 }
 
                 // Add the selected colors to palette
@@ -702,6 +768,114 @@
                 } else if (sameFamilyIndex < sameFamily.length) {
                     selected.push(sameFamily[sameFamilyIndex]);
                     sameFamilyIndex++;
+                }
+            }
+            
+            return selected;
+        }
+
+        function getNeutralColors(availableColors, count) {
+            const neutrals = shuffleArray(availableColors.filter(c => 
+                c.family === 'neutral' || c.intensity === 'muted' || c.style.includes('minimal')
+            ));
+            const others = shuffleArray(availableColors.filter(c => 
+                c.family !== 'neutral' && c.intensity !== 'muted' && !c.style.includes('minimal')
+            ));
+            
+            const selected = [];
+            let neutralIndex = 0;
+            let otherIndex = 0;
+            
+            for (let i = 0; i < count; i++) {
+                if (neutralIndex < neutrals.length && Math.random() > 0.2) {
+                    selected.push(neutrals[neutralIndex]);
+                    neutralIndex++;
+                } else if (otherIndex < others.length) {
+                    selected.push(others[otherIndex]);
+                    otherIndex++;
+                } else if (neutralIndex < neutrals.length) {
+                    selected.push(neutrals[neutralIndex]);
+                    neutralIndex++;
+                }
+            }
+            
+            return selected;
+        }
+
+        function getStyleColors(availableColors, style, count) {
+            const styleColors = shuffleArray(availableColors.filter(c => c.style.includes(style)));
+            const others = shuffleArray(availableColors.filter(c => !c.style.includes(style)));
+            
+            const selected = [];
+            let styleIndex = 0;
+            let otherIndex = 0;
+            
+            for (let i = 0; i < count; i++) {
+                if (styleIndex < styleColors.length && Math.random() > 0.25) {
+                    selected.push(styleColors[styleIndex]);
+                    styleIndex++;
+                } else if (otherIndex < others.length) {
+                    selected.push(others[otherIndex]);
+                    otherIndex++;
+                } else if (styleIndex < styleColors.length) {
+                    selected.push(styleColors[styleIndex]);
+                    styleIndex++;
+                }
+            }
+            
+            return selected;
+        }
+
+        function getBoldColors(availableColors, count) {
+            const boldColors = shuffleArray(availableColors.filter(c => 
+                c.intensity === 'bold' || c.style.includes('bold')
+            ));
+            const others = shuffleArray(availableColors.filter(c => 
+                c.intensity !== 'bold' && !c.style.includes('bold')
+            ));
+            
+            const selected = [];
+            let boldIndex = 0;
+            let otherIndex = 0;
+            
+            for (let i = 0; i < count; i++) {
+                if (boldIndex < boldColors.length && Math.random() > 0.2) {
+                    selected.push(boldColors[boldIndex]);
+                    boldIndex++;
+                } else if (otherIndex < others.length) {
+                    selected.push(others[otherIndex]);
+                    otherIndex++;
+                } else if (boldIndex < boldColors.length) {
+                    selected.push(boldColors[boldIndex]);
+                    boldIndex++;
+                }
+            }
+            
+            return selected;
+        }
+
+        function getMinimalColors(availableColors, count) {
+            const minimalColors = shuffleArray(availableColors.filter(c => 
+                c.style.includes('minimal') || c.intensity === 'light' || c.family === 'neutral'
+            ));
+            const others = shuffleArray(availableColors.filter(c => 
+                !c.style.includes('minimal') && c.intensity !== 'light' && c.family !== 'neutral'
+            ));
+            
+            const selected = [];
+            let minimalIndex = 0;
+            let otherIndex = 0;
+            
+            for (let i = 0; i < count; i++) {
+                if (minimalIndex < minimalColors.length && Math.random() > 0.15) {
+                    selected.push(minimalColors[minimalIndex]);
+                    minimalIndex++;
+                } else if (otherIndex < others.length) {
+                    selected.push(others[otherIndex]);
+                    otherIndex++;
+                } else if (minimalIndex < minimalColors.length) {
+                    selected.push(minimalColors[minimalIndex]);
+                    minimalIndex++;
                 }
             }
             
@@ -877,6 +1051,7 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            updateThemeOptions(); // Initialize theme options
             validateColor('3');
             // Set initial color icon
             const initialColor = colorDatabase.find(c => c.id === 3);
