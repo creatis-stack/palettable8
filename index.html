@@ -380,6 +380,142 @@
         .color-info-temp {
             text-transform: capitalize;
         }
+
+        /* Custom Mode Styles */
+        .grid {
+            display: grid;
+        }
+
+        .grid-cols-8 {
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+        }
+
+        .color-swatch {
+            aspect-ratio: 1;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+            min-height: 32px;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .color-swatch.selected {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+
+        .color-swatch-number {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 0.625rem;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.125rem;
+            font-family: monospace;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .color-swatch:hover .color-swatch-number {
+            opacity: 1;
+        }
+
+        /* Mode selection styling */
+        .mode-selector {
+            display: flex;
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .mode-option {
+            flex: 1;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .mode-option:hover {
+            background-color: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .mode-option.selected {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .mode-option.selected:hover {
+            background-color: #2563eb;
+        }
+
+        .mode-icon {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto 1rem;
+            background: #e5e7eb;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .mode-option.selected .mode-icon {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .mode-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .mode-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .mode-option.selected .mode-description {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .continue-btn {
+            margin-top: 2rem;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .continue-btn.visible {
+            opacity: 1;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
         @media (max-width: 768px) {
             h1 {
@@ -402,6 +538,23 @@
                 flex-direction: column;
                 gap: 0.5rem;
             }
+
+            .grid-cols-8 {
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+            }
+
+            .mode-selector {
+                flex-direction: column;
+            }
+
+            .mode-option {
+                padding: 1.5rem 1rem;
+            }
+
+            .mode-icon {
+                width: 2.5rem;
+                height: 2.5rem;
+            }
         }
     </style>
 </head>
@@ -411,94 +564,185 @@
             <div class="text-center mb-8"> <img src="logo_palettable.png" alt="Palettable Logo" width="150" height="150"> </div>
         </div>
 
-        <!-- Input Section -->
-        <div class="mb-6 card">
-            <h3 class="font-semibold text-gray-900 mb-4">Dominant Color</h3>
-            <div class="mb-4">
-                <div class="flex gap-2">
-                    <div class="input-container">
-                        <div class="color-icon" id="colorIcon" style="background-color: #3b82f6;"></div>
-                        <input 
-                            type="text" 
-                            id="colorInput" 
-                            class="input" 
-                            placeholder="3" 
-                            value="3"
-                            oninput="validateColor(this.value)"
-                            onkeypress="handleKeyPress(event)"
-                        />
-                    </div>
-                </div>
-                <div id="colorError" class="error-text hidden">
-                    Color number not found. Try: 1-32 (e.g., 1 for Lilac Taupe, 2 for Pale Champagne, 3 for Petal Pink, etc.)
-                </div>
-                <div id="colorInfo" class="color-info">
-                    <div class="color-info-name" id="colorInfoName">Petal Pink</div>
-                    <div class="color-info-details">
-                        <div>Hex: <span class="color-info-hex" id="colorInfoHex">#FCF1EF</span></div>
-                        <div>Temperature: <span class="color-info-temp" id="colorInfoTemp">warm</span></div>
-                    </div>
-                </div>
+        <!-- Mode Selection Screen -->
+        <div id="modeSelectionScreen" class="mb-8">
+            <div class="text-center mb-6">
+                <h2 class="text-gray-900 font-semibold text-xl mb-2">Choose Your Approach</h2>
+                <p class="text-gray-600">How would you like to build your color palette?</p>
             </div>
             
-            <div class="form-row">
-                <div>
-                    <label class="font-medium text-gray-900 mb-2" style="display: block;">Palette Size</label>
-                    <select class="select" id="paletteSize">
-                        <option value="3" selected>3 colors</option>
-                        <option value="4">4 colors</option>
-                        <option value="5">5 colors</option>
-                        <option value="6">6 colors</option>
-                    </select>
+            <div class="mode-selector">
+                <div class="mode-option" data-mode="theme" onclick="selectMode('theme')">
+                    <div class="mode-icon">🎨</div>
+                    <div class="mode-title">Build from Theme</div>
+                    <div class="mode-description">Start with a dominant color and let us create harmonious, contrasting, or themed palettes based on design principles.</div>
                 </div>
                 
-                <div>
-                    <label class="font-medium text-gray-900 mb-2" style="display: block;">Theme Category</label>
-                    <select class="select" id="themeLens" onchange="updateThemeOptions()">
-                        <option value="technical">Designer's Lens (Technical)</option>
-                        <option value="mood">Mood & Style Lens</option>
-                    </select>
+                <div class="mode-option" data-mode="custom" onclick="selectMode('custom')">
+                    <div class="mode-icon">🎯</div>
+                    <div class="mode-title">Build My Own</div>
+                    <div class="mode-description">Hand-pick specific colors from our curated collection and fill remaining spots with smart suggestions.</div>
                 </div>
             </div>
             
-            <div class="mb-4">
-                <label class="font-medium text-gray-900 mb-2" style="display: block;">Theme</label>
-                <select class="select" id="themeSelect">
-                    <!-- Options populated by updateThemeOptions() -->
-                </select>
+            <div class="continue-btn" id="continueBtn">
+                <button class="btn btn-primary" onclick="proceedToBuilder()" disabled id="proceedBtn">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                    Continue to Palette Builder
+                </button>
             </div>
         </div>
 
-        <!-- Generate Button -->
-        <div class="mb-6 text-center">
-            <button onclick="generatePalette()" class="btn btn-primary" id="generateBtn">
+        <!-- Main App Interface (Initially Hidden) -->
+        <div id="mainInterface" class="hidden">
+            <!-- Input Section -->
+            <div class="mb-6 card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-gray-900">Palette Builder</h3>
+                    <button class="btn btn-secondary btn-small" onclick="goBackToModeSelection()">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Change Mode
+                    </button>
+                </div>
+                
+                <!-- Theme Mode Section -->
+                <div id="themeModeSection" class="hidden">
+                    <h4 class="font-medium text-gray-900 mb-3">Dominant Color</h4>
+                    <div class="mb-4">
+                        <div class="flex gap-2">
+                            <div class="input-container">
+                                <div class="color-icon" id="colorIcon" style="background-color: #FCF1EF;"></div>
+                                <input 
+                                    type="text" 
+                                    id="colorInput" 
+                                    class="input" 
+                                    placeholder="3" 
+                                    value="3"
+                                    oninput="validateColor(this.value)"
+                                    onkeypress="handleKeyPress(event)"
+                                />
+                            </div>
+                        </div>
+                        <div id="colorError" class="error-text hidden">
+                            Color number not found. Try: 1-32 (e.g., 1 for Lilac Taupe, 2 for Pale Champagne, 3 for Petal Pink, etc.)
+                        </div>
+                        <div id="colorInfo" class="color-info">
+                            <div class="color-info-name" id="colorInfoName">Petal Pink</div>
+                            <div class="color-info-details">
+                                <div>Hex: <span class="color-info-hex" id="colorInfoHex">#FCF1EF</span></div>
+                                <div>Temperature: <span class="color-info-temp" id="colorInfoTemp">warm</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div>
+                            <label class="font-medium text-gray-900 mb-2" style="display: block;">Palette Size</label>
+                            <select class="select" id="paletteSize">
+                                <option value="3" selected>3 colors</option>
+                                <option value="4">4 colors</option>
+                                <option value="5">5 colors</option>
+                                <option value="6">6 colors</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="font-medium text-gray-900 mb-2" style="display: block;">Theme Category</label>
+                            <select class="select" id="themeLens" onchange="updateThemeOptions()">
+                                <option value="technical">Designer's Lens (Technical)</option>
+                                <option value="mood">Mood & Style Lens</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="font-medium text-gray-900 mb-2" style="display: block;">Theme</label>
+                        <select class="select" id="themeSelect">
+                            <!-- Options populated by updateThemeOptions() -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Custom Mode Section -->
+                <div id="customModeSection" class="hidden">
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-medium text-gray-900">Select Colors</h4>
+                            <div class="text-sm text-gray-600">
+                                <span id="selectionCount">0</span> of <span id="targetSize">3</span> selected
+                            </div>
+                        </div>
+                        
+                        <!-- Color Grid -->
+                        <div id="colorGrid" class="grid grid-cols-8 gap-2 mb-4">
+                            <!-- Colors populated by JavaScript -->
+                        </div>
+                        
+                        <!-- Custom Controls -->
+                        <div class="space-y-3">
+                            <div>
+                                <label class="font-medium text-gray-900 mb-2" style="display: block;">Palette Size</label>
+                                <select class="select" id="customPaletteSize" onchange="updateCustomPaletteSize()">
+                                    <option value="3" selected>3 colors</option>
+                                    <option value="4">4 colors</option>
+                                    <option value="5">5 colors</option>
+                                    <option value="6">6 colors</option>
+                                </select>
+                            </div>
+                            
+                            <div id="fillOptions" class="hidden">
+                                <label class="font-medium text-gray-900 mb-2" style="display: block;">Fill Remaining With</label>
+                                <select class="select" id="fillStrategy">
+                                    <option value="random">Random Colors</option>
+                                    <option value="harmonious">Harmonious Colors</option>
+                                    <option value="contrasting">Contrasting Colors</option>
+                                    <option value="similar">Similar Style/Mood</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generate Button -->
+                <div class="text-center">
+                    <button onclick="generatePalette()" class="btn btn-primary" id="generateBtn">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+                        </svg>
+                        Generate Palette
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-gray-900">Generated Palette</h3>
+                    <div class="text-sm text-gray-600">
+                        Click colors to lock/unlock • Locked colors stay when regenerating
+                    </div>
+                </div>
+                
+                <div id="paletteContainer" class="palette-container">
+                    <!-- Palette will be generated here -->
+                </div>
+            </div>
+
+            <!-- Message Box -->
+            <div id="messageBox" class="message-box message-success hidden">
                 <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Generate Palette
-            </button>
-        </div>
-
-        <!-- Results Section -->
-        <div id="resultsSection" class="hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-semibold text-gray-900">Generated Palette</h3>
-                <div class="text-sm text-gray-600">
-                    Click colors to lock/unlock • Locked colors stay when regenerating
-                </div>
-            </div>
-            
-            <div id="paletteContainer" class="palette-container">
-                <!-- Palette will be generated here -->
+                <span id="messageText">Palette generated successfully!</span>
             </div>
         </div>
 
-        <!-- Message Box -->
-        <div id="messageBox" class="message-box message-success hidden">
-            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <span id="messageText">Palette generated successfully!</span>
+        <div class="text-center text-gray-700 text-sm font-normal font-sans mt-8">
+            Custom-built by <a href="https://creatis.in/pages/stack" class="underline hover:text-black transition">Creatis Stack</a>, v.08.25
         </div>
     </div>
 
@@ -543,6 +787,9 @@
         let lockedColors = new Set();
         let dominantColor = 3; // Default to Petal Pink
         let dominantColorLocked = true; // Dominant color starts locked by default
+        let selectedColors = new Set(); // For custom mode
+        let buildMode = 'theme'; // Current build mode
+        let selectedModeType = null; // Track which mode is selected
 
         // Theme options for each category
         const themeOptions = {
@@ -564,6 +811,155 @@
                 { value: 'minimal', label: 'Minimal – Soft neutrals, light grays, whites' }
             ]
         };
+
+        // Mode selection functions
+        function selectMode(mode) {
+            // Remove selection from all options
+            document.querySelectorAll('.mode-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('selected');
+            
+            selectedModeType = mode;
+            buildMode = mode;
+            
+            // Show continue button
+            const continueBtn = document.getElementById('continueBtn');
+            const proceedBtn = document.getElementById('proceedBtn');
+            continueBtn.classList.add('visible');
+            proceedBtn.disabled = false;
+        }
+
+        function proceedToBuilder() {
+            if (!selectedModeType) return;
+            
+            // Hide mode selection screen
+            document.getElementById('modeSelectionScreen').classList.add('hidden');
+            
+            // Show main interface with fade-in animation
+            const mainInterface = document.getElementById('mainInterface');
+            mainInterface.classList.remove('hidden');
+            mainInterface.classList.add('fade-in');
+            
+            // Show appropriate section based on selected mode
+            if (selectedModeType === 'theme') {
+                document.getElementById('themeModeSection').classList.remove('hidden');
+                document.getElementById('customModeSection').classList.add('hidden');
+            } else {
+                document.getElementById('themeModeSection').classList.add('hidden');
+                document.getElementById('customModeSection').classList.remove('hidden');
+                initializeCustomMode();
+            }
+        }
+
+        function goBackToModeSelection() {
+            // Hide main interface
+            document.getElementById('mainInterface').classList.add('hidden');
+            
+            // Show mode selection screen
+            document.getElementById('modeSelectionScreen').classList.remove('hidden');
+            
+            // Reset selections
+            document.querySelectorAll('.mode-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.getElementById('continueBtn').classList.remove('visible');
+            document.getElementById('proceedBtn').disabled = true;
+            selectedModeType = null;
+            
+            // Hide results if showing
+            document.getElementById('resultsSection').classList.add('hidden');
+        }
+
+        // Initialize custom mode
+        function initializeCustomMode() {
+            const colorGrid = document.getElementById('colorGrid');
+            
+            // Create color swatches
+            const swatches = colorDatabase.map(color => `
+                <div class="color-swatch" 
+                     style="background-color: ${color.hex};" 
+                     onclick="toggleColorSelection(${color.id})"
+                     title="${color.name} (#${color.id})">
+                    <div class="color-swatch-number">${color.id}</div>
+                </div>
+            `).join('');
+            
+            colorGrid.innerHTML = swatches;
+            updateSelectionCount();
+        }
+
+        // Toggle color selection in custom mode
+        function toggleColorSelection(colorId) {
+            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
+            
+            if (selectedColors.has(colorId)) {
+                selectedColors.delete(colorId);
+            } else {
+                if (selectedColors.size < targetSize) {
+                    selectedColors.add(colorId);
+                } else {
+                    showMessage(`You can only select ${targetSize} colors. Remove one first.`, 'warning');
+                    return;
+                }
+            }
+            
+            updateVisualSelection();
+            updateSelectionCount();
+            updateFillOptions();
+        }
+
+        // Update visual selection in custom mode
+        function updateVisualSelection() {
+            const swatches = document.querySelectorAll('.color-swatch');
+            swatches.forEach((swatch, index) => {
+                const colorId = colorDatabase[index].id;
+                if (selectedColors.has(colorId)) {
+                    swatch.classList.add('selected');
+                } else {
+                    swatch.classList.remove('selected');
+                }
+            });
+        }
+
+        // Update selection count display
+        function updateSelectionCount() {
+            const count = document.getElementById('selectionCount');
+            const target = document.getElementById('targetSize');
+            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
+            
+            count.textContent = selectedColors.size;
+            target.textContent = targetSize;
+        }
+
+        // Update custom palette size
+        function updateCustomPaletteSize() {
+            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
+            
+            // If we have too many colors selected, keep only the first N
+            if (selectedColors.size > targetSize) {
+                const selectedArray = Array.from(selectedColors);
+                selectedColors = new Set(selectedArray.slice(0, targetSize));
+                updateVisualSelection();
+            }
+            
+            updateSelectionCount();
+            updateFillOptions();
+        }
+
+        // Update fill options visibility
+        function updateFillOptions() {
+            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
+            const fillOptions = document.getElementById('fillOptions');
+            
+            if (selectedColors.size > 0 && selectedColors.size < targetSize) {
+                fillOptions.classList.remove('hidden');
+            } else {
+                fillOptions.classList.add('hidden');
+            }
+        }
 
         function updateThemeOptions() {
             const themeLens = document.getElementById('themeLens').value;
@@ -629,10 +1025,6 @@
             document.getElementById('colorInfoTemp').textContent = color.family;
         }
 
-        function isValidHex(hex) {
-            return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex);
-        }
-
         function handleKeyPress(event) {
             if (event.key === 'Enter' && !document.getElementById('generateBtn').disabled) {
                 generatePalette();
@@ -641,6 +1033,14 @@
 
         // Palette generation
         function generatePalette() {
+            if (buildMode === 'theme') {
+                generateThemePalette();
+            } else {
+                generateCustomPalette();
+            }
+        }
+
+        function generateThemePalette() {
             if (!validateColor(dominantColor)) return;
 
             const size = parseInt(document.getElementById('paletteSize').value);
@@ -663,6 +1063,90 @@
             showMessage('Palette generated successfully!', 'success');
         }
 
+        function generateCustomPalette() {
+            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
+            
+            if (selectedColors.size === 0) {
+                showMessage('Please select at least one color to build your palette.', 'warning');
+                return;
+            }
+
+            let palette = [];
+            
+            // Add selected colors
+            selectedColors.forEach(colorId => {
+                const color = colorDatabase.find(c => c.id === colorId);
+                if (color) {
+                    palette.push(color);
+                }
+            });
+
+            // Fill remaining spots if needed
+            if (palette.length < targetSize) {
+                const fillStrategy = document.getElementById('fillStrategy').value;
+                const remainingCount = targetSize - palette.length;
+                const additionalColors = getFillColors(palette, fillStrategy, remainingCount);
+                palette.push(...additionalColors);
+            }
+
+            currentPalette = shuffleArray(palette).slice(0, targetSize);
+            lockedColors = new Set(selectedColors); // Lock selected colors
+            displayPalette();
+            
+            document.getElementById('resultsSection').classList.remove('hidden');
+            showMessage('Custom palette generated successfully!', 'success');
+        }
+
+        function getFillColors(existingPalette, strategy, count) {
+            let availableColors = colorDatabase.filter(c => 
+                !existingPalette.some(existing => existing.id === c.id)
+            );
+
+            let selectedColors = [];
+
+            switch (strategy) {
+                case 'harmonious':
+                    // Get colors similar to existing ones
+                    const families = [...new Set(existingPalette.map(c => c.family))];
+                    selectedColors = shuffleArray(availableColors.filter(c => 
+                        families.includes(c.family)
+                    )).slice(0, count);
+                    break;
+                    
+                case 'contrasting':
+                    // Get colors from opposite families
+                    const oppositeFamilies = existingPalette.map(c => 
+                        c.family === 'warm' ? 'cool' : c.family === 'cool' ? 'warm' : 'neutral'
+                    );
+                    selectedColors = shuffleArray(availableColors.filter(c => 
+                        oppositeFamilies.includes(c.family)
+                    )).slice(0, count);
+                    break;
+                    
+                case 'similar':
+                    // Get colors with similar styles
+                    const styles = [...new Set(existingPalette.flatMap(c => c.style))];
+                    selectedColors = shuffleArray(availableColors.filter(c => 
+                        c.style.some(style => styles.includes(style))
+                    )).slice(0, count);
+                    break;
+                    
+                default: // random
+                    selectedColors = shuffleArray(availableColors).slice(0, count);
+                    break;
+            }
+
+            // Fill with random if not enough colors found
+            if (selectedColors.length < count) {
+                const remaining = shuffleArray(availableColors.filter(c => 
+                    !selectedColors.some(selected => selected.id === c.id)
+                )).slice(0, count - selectedColors.length);
+                selectedColors.push(...remaining);
+            }
+
+            return selectedColors;
+        }
+
         function createPalette(dominantColor, theme, size) {
             let availableColors = [...colorDatabase];
             let palette = [];
@@ -674,7 +1158,7 @@
 
             // Handle locked colors first
             if (lockedColors.size > 0) {
-                // Add locked colors to palette (they keep their relative positions)
+                // Add locked colors to palette
                 lockedColors.forEach(colorId => {
                     const lockedColor = colorDatabase.find(c => c.id === colorId);
                     if (lockedColor) {
@@ -946,8 +1430,8 @@
         // Display palette
         function displayPalette() {
             const container = document.getElementById('paletteContainer');
-            const size = parseInt(document.getElementById('paletteSize').value);
-            const theme = document.getElementById('themeSelect').value;
+            const size = buildMode === 'theme' ? parseInt(document.getElementById('paletteSize').value) : parseInt(document.getElementById('customPaletteSize').value);
+            const theme = buildMode === 'theme' ? document.getElementById('themeSelect').value : 'custom';
             
             const colorsHtml = currentPalette.map((color, index) => {
                 const isLocked = lockedColors.has(color.id);
@@ -962,15 +1446,21 @@
                 `;
             }).join('');
 
+            const paletteTitle = buildMode === 'theme' ? 
+                `${theme.charAt(0).toUpperCase() + theme.slice(1)} Palette (${currentPalette.length} colors)` :
+                `Custom Palette (${currentPalette.length} colors)`;
+
+            const paletteDescription = buildMode === 'theme' ?
+                `Generated from #${dominantColor} • ${lockedColors.size} color${lockedColors.size !== 1 ? 's' : ''} locked` :
+                `Built from selected colors • ${lockedColors.size} color${lockedColors.size !== 1 ? 's' : ''} locked`;
+
             container.innerHTML = `
                 <div class="palette-colors">
                     ${colorsHtml}
                 </div>
                 <div class="palette-info">
-                    <div class="palette-name">${theme.charAt(0).toUpperCase() + theme.slice(1)} Palette (${currentPalette.length} colors)</div>
-                    <div class="palette-description">
-                        Generated from #${dominantColor} • ${lockedColors.size} color${lockedColors.size !== 1 ? 's' : ''} locked
-                    </div>
+                    <div class="palette-name">${paletteTitle}</div>
+                    <div class="palette-description">${paletteDescription}</div>
                     <div class="palette-actions">
                         <button class="btn btn-secondary btn-small" onclick="regeneratePalette()">
                             <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1008,14 +1498,17 @@
         }
 
         function regeneratePalette() {
-            const size = parseInt(document.getElementById('paletteSize').value);
-            const theme = document.getElementById('themeSelect').value;
+            if (buildMode === 'theme') {
+                const size = parseInt(document.getElementById('paletteSize').value);
+                const theme = document.getElementById('themeSelect').value;
+                const dominantColorInfo = colorDatabase.find(c => c.id === dominantColor);
+                currentPalette = createPalette(dominantColorInfo, theme, size);
+            } else {
+                generateCustomPalette();
+                return;
+            }
             
-            const dominantColorInfo = colorDatabase.find(c => c.id === dominantColor);
-
-            currentPalette = createPalette(dominantColorInfo, theme, size);
             displayPalette();
-            
             showMessage('Palette regenerated with locked colors preserved!', 'success');
         }
 
@@ -1061,8 +1554,5 @@
             }
         });
     </script>
-     <div class="text-center text-gray-700 text-sm font-normal font-sans mt-8">
-  Custom-built by <a href="https://creatis.in/pages/stack" class="underline hover:text-black transition">Creatis Stack</a>, v.08.25
-    </div>
 </body>
 </html>
