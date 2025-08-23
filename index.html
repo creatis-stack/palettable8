@@ -560,8 +560,8 @@
 </head>
 <body>
     <div class="container">
-        <div class="text-center mb-8">
-            <div class="text-center mb-8"> <img src="logo_palettable.png" alt="Palettable Logo" width="150" height="150"> </div>
+        <div class="text-center mb-8"><div class="text-center mb-8"> 
+            <img src="logo_palettable.png" alt="Palettable Logo" width="150" height="150"> </div>
         </div>
 
         <!-- Mode Selection Screen -->
@@ -938,15 +938,15 @@
         function updateCustomPaletteSize() {
             const targetSize = parseInt(document.getElementById('customPaletteSize').value);
             
-            // If we have too many colors selected, keep only the first N
-            if (selectedColors.size > targetSize) {
-                const selectedArray = Array.from(selectedColors);
-                selectedColors = new Set(selectedArray.slice(0, targetSize));
-                updateVisualSelection();
-            }
-            
+            // Don't reduce selectedColors - let user manually deselect if needed
+            // Just update the UI to reflect the new target size
             updateSelectionCount();
             updateFillOptions();
+            
+            // Show a message if they have more colors selected than the target size
+            if (selectedColors.size > targetSize) {
+                showMessage(`You have ${selectedColors.size} colors selected for a ${targetSize}-color palette. Extra colors will be used in order of selection.`, 'warning');
+            }
         }
 
         // Update fill options visibility
@@ -1073,8 +1073,11 @@
 
             let palette = [];
             
-            // Add selected colors
-            selectedColors.forEach(colorId => {
+            // Add selected colors (up to target size)
+            const selectedArray = Array.from(selectedColors);
+            const colorsToUse = selectedArray.slice(0, targetSize);
+            
+            colorsToUse.forEach(colorId => {
                 const color = colorDatabase.find(c => c.id === colorId);
                 if (color) {
                     palette.push(color);
@@ -1090,11 +1093,37 @@
             }
 
             currentPalette = shuffleArray(palette).slice(0, targetSize);
-            lockedColors = new Set(selectedColors); // Lock selected colors
+            lockedColors = new Set(colorsToUse); // Lock only the colors that made it into the palette
             displayPalette();
             
             document.getElementById('resultsSection').classList.remove('hidden');
             showMessage('Custom palette generated successfully!', 'success');
+        }
+
+        function regenerateCustomPalette() {
+            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
+            
+            let palette = [];
+            
+            // First, add all locked colors from the current palette
+            lockedColors.forEach(colorId => {
+                const color = colorDatabase.find(c => c.id === colorId);
+                if (color) {
+                    palette.push(color);
+                }
+            });
+
+            // Fill remaining spots if needed
+            if (palette.length < targetSize) {
+                const fillStrategy = document.getElementById('fillStrategy').value;
+                const remainingCount = targetSize - palette.length;
+                const additionalColors = getFillColors(palette, fillStrategy, remainingCount);
+                palette.push(...additionalColors);
+            }
+
+            currentPalette = shuffleArray(palette).slice(0, targetSize);
+            displayPalette();
+            showMessage('Custom palette regenerated with locked colors preserved!', 'success');
         }
 
         function getFillColors(existingPalette, strategy, count) {
@@ -1504,7 +1533,7 @@
                 const dominantColorInfo = colorDatabase.find(c => c.id === dominantColor);
                 currentPalette = createPalette(dominantColorInfo, theme, size);
             } else {
-                generateCustomPalette();
+                regenerateCustomPalette();
                 return;
             }
             
