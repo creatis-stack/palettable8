@@ -1,1587 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Palettable - Color Palette Generator</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f9fafb;
-            line-height: 1.5;
-        }
-        
-        .container {
-            min-height: 100vh;
-            padding: 1.5rem;
-            max-width: 48rem;
-            margin: 0 auto;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
-        .mb-8 {
-            margin-bottom: 2rem;
-        }
-        
-        .mb-6 {
-            margin-bottom: 1.5rem;
-        }
-        
-        .mb-4 {
-            margin-bottom: 1rem;
-        }
-        
-        .mb-2 {
-            margin-bottom: 0.5rem;
-        }
-        
-        .mt-4 {
-            margin-top: 1rem;
-        }
-        
-        h1 {
-            font-size: 2.25rem;
-            font-weight: bold;
-            color: #111827;
-            margin-bottom: 0.5rem;
-        }
-        
-        .tagline {
-            color: #6b7280;
-            font-style: italic;
-        }
-        
-        .card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .space-y-4 > * + * {
-            margin-top: 1rem;
-        }
-        
-        .space-y-3 > * + * {
-            margin-top: 0.75rem;
-        }
-        
-        .flex {
-            display: flex;
-        }
-        
-        .items-center {
-            align-items: center;
-        }
-        
-        .justify-center {
-            justify-content: center;
-        }
-        
-        .justify-between {
-            justify-content: space-between;
-        }
-        
-        .gap-2 {
-            gap: 0.5rem;
-        }
-        
-        .gap-3 {
-            gap: 0.75rem;
-        }
-        
-        .gap-4 {
-            gap: 1rem;
-        }
-        
-        .input-container {
-            position: relative;
-            flex: 1;
-        }
-        
-        .color-icon {
-            position: absolute;
-            left: 0.75rem;
-            top: 0.75rem;
-            width: 1.25rem;
-            height: 1.25rem;
-            border-radius: 0.25rem;
-            border: 1px solid #d1d5db;
-        }
-        
-        .input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            outline: none;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-        }
-        
-        .input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        .input.error {
-            border-color: #ef4444;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .btn-primary {
-            background-color: #3b82f6;
-            color: white;
-        }
-        
-        .btn-primary:hover:not(:disabled) {
-            background-color: #2563eb;
-        }
-        
-        .btn-secondary {
-            background-color: transparent;
-            color: #6b7280;
-            border: 1px solid #d1d5db;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #f3f4f6;
-            color: #374151;
-        }
-        
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-        
-        .select {
-            padding: 0.75rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            background: white;
-            outline: none;
-            width: 100%;
-        }
-        
-        .select:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        
-        .palette-container {
-            background: white;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .palette-colors {
-            display: flex;
-            height: 120px;
-        }
-        
-        .palette-color {
-            flex: 1;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .palette-color:hover {
-            transform: scale(1.05);
-            z-index: 10;
-        }
-        
-        .palette-color.locked {
-            position: relative;
-        }
-        
-        .lock-icon {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            width: 1rem;
-            height: 1rem;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            border-radius: 0.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-        }
-        
-        .color-hex {
-            position: absolute;
-            bottom: 0.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        
-        .palette-color:hover .color-hex {
-            opacity: 1;
-        }
-        
-        .palette-info {
-            padding: 1rem;
-        }
-        
-        .palette-name {
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 0.5rem;
-        }
-        
-        .palette-description {
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-        }
-        
-        .palette-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .font-mono {
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-        }
-        
-        .font-medium {
-            font-weight: 500;
-        }
-        
-        .font-semibold {
-            font-weight: 600;
-        }
-        
-        .text-sm {
-            font-size: 0.875rem;
-        }
-        
-        .text-gray-600 {
-            color: #6b7280;
-        }
-        
-        .text-gray-900 {
-            color: #111827;
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        .message-box {
-            margin-top: 1rem;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .message-success {
-            background-color: #f0fdf4;
-            color: #166534;
-        }
-        
-        .message-error {
-            background-color: #fef2f2;
-            color: #991b1b;
-        }
-        
-        .message-warning {
-            background-color: #fefce8;
-            color: #92400e;
-        }
-        
-        .icon {
-            width: 1rem;
-            height: 1rem;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2;
-        }
-        
-        .error-text {
-            color: #ef4444;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-        
-        .color-info {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.375rem;
-            padding: 0.75rem;
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-            color: #475569;
-        }
-        
-        .color-info-name {
-            font-weight: 600;
-            color: #1e293b;
-        }
-        
-        .color-info-details {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.25rem;
-        }
-        
-        .color-info-hex {
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            background-color: #f1f5f9;
-            padding: 0.125rem 0.375rem;
-            border-radius: 0.25rem;
-        }
-        
-        .color-info-temp {
-            text-transform: capitalize;
-        }
-
-        /* Custom Mode Styles */
-        .grid {
-            display: grid;
-        }
-
-        .grid-cols-8 {
-            grid-template-columns: repeat(8, minmax(0, 1fr));
-        }
-
-        .color-swatch {
-            aspect-ratio: 1;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-            position: relative;
-            min-height: 32px;
-        }
-
-        .color-swatch:hover {
-            transform: scale(1.1);
-            z-index: 10;
-        }
-
-        .color-swatch.selected {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-        }
-
-        .color-swatch-number {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            font-size: 0.625rem;
-            padding: 0.125rem 0.25rem;
-            border-radius: 0.125rem;
-            font-family: monospace;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .color-swatch:hover .color-swatch-number {
-            opacity: 1;
-        }
-
-        /* Mode selection styling */
-        .mode-selector {
-            display: flex;
-            background: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow: hidden;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .mode-option {
-            flex: 1;
-            padding: 2rem 1.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            position: relative;
-        }
-
-        .mode-option:hover {
-            background-color: #f8fafc;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .mode-option.selected {
-            background-color: #3b82f6;
-            color: white;
-            border-color: #2563eb;
-        }
-
-        .mode-option.selected:hover {
-            background-color: #2563eb;
-        }
-
-        .mode-icon {
-            width: 3rem;
-            height: 3rem;
-            margin: 0 auto 1rem;
-            background: #e5e7eb;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .mode-option.selected .mode-icon {
-            background: rgba(255,255,255,0.2);
-        }
-
-        .mode-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .mode-description {
-            font-size: 0.875rem;
-            color: #6b7280;
-            line-height: 1.4;
-        }
-
-        .mode-option.selected .mode-description {
-            color: rgba(255,255,255,0.9);
-        }
-
-        .continue-btn {
-            margin-top: 2rem;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .continue-btn.visible {
-            opacity: 1;
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.875rem;
-            }
-            
-            .container {
-                padding: 1rem;
-            }
-            
-            .card {
-                padding: 1rem;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .color-info-details {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .grid-cols-8 {
-                grid-template-columns: repeat(6, minmax(0, 1fr));
-            }
-
-            .mode-selector {
-                flex-direction: column;
-            }
-
-            .mode-option {
-                padding: 1.5rem 1rem;
-            }
-
-            .mode-icon {
-                width: 2.5rem;
-                height: 2.5rem;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palettable - Color Palette Generator</title>
+<style>
+/* ——— original styles unchanged ——— */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background-color:#f9fafb;line-height:1.5}
+.container{min-height:100vh;padding:1.5rem;max-width:48rem;margin:0 auto}
+.text-center{text-align:center}.mb-8{margin-bottom:2rem}.mb-6{margin-bottom:1.5rem}
+.mb-4{margin-bottom:1rem}.mb-2{margin-bottom:0.5rem}.mt-4{margin-top:1rem}
+.card{background:#fff;padding:1.5rem;border-radius:.5rem;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-2{gap:.5rem}
+.input-container{position:relative;flex:1}
+.color-icon{position:absolute;left:.75rem;top:.75rem;width:1.25rem;height:1.25rem;border-radius:.25rem;border:1px solid #d1d5db}
+.input{width:100%;padding:.75rem 1rem .75rem 2.5rem;border:1px solid #d1d5db;border-radius:.5rem;font-size:1rem;outline:none;font-family:Monaco,Menlo,'Ubuntu Mono',monospace}
+.input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.input.error{border-color:#ef4444}
+.btn{padding:.75rem 1.5rem;border:none;border-radius:.5rem;font-weight:500;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:.5rem}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-primary{background:#3b82f6;color:#fff}.btn-primary:hover:not(:disabled){background:#2563eb}
+.btn-secondary{background:transparent;color:#6b7280;border:1px solid #d1d5db}.btn-secondary:hover{background:#f3f4f6;color:#374151}
+.btn-small{padding:.5rem 1rem;font-size:.875rem}
+.select{padding:.75rem 1rem;border:1px solid #d1d5db;border-radius:.5rem;background:#fff;outline:none;width:100%}
+.select:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.palette-container{background:#fff;border-radius:.5rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.palette-colors{display:flex;height:120px}
+.palette-color{flex:1;position:relative;cursor:pointer;transition:.2s}
+.palette-color:hover{transform:scale(1.05);z-index:10}
+.palette-color.locked{position:relative}
+.lock-icon{position:absolute;top:.5rem;right:.5rem;width:1rem;height:1rem;background:rgba(0,0,0,.8);color:#fff;border-radius:.25rem;display:flex;align-items:center;justify-content:center;font-size:.75rem}
+.color-hex{position:absolute;bottom:.5rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:.25rem .5rem;border-radius:.25rem;font-size:.75rem;font-family:Monaco,Menlo,'Ubuntu Mono',monospace;opacity:0;transition:opacity .2s}
+.palette-color:hover .color-hex{opacity:1}
+.palette-info{padding:1rem}
+.palette-name{font-weight:600;color:#111827;margin-bottom:.5rem}
+.palette-description{color:#6b7280;font-size:.875rem;margin-bottom:1rem}
+.palette-actions{display:flex;gap:.5rem}
+.font-medium{font-weight:500}.font-semibold{font-weight:600}.text-sm{font-size:.875rem}
+.text-gray-600{color:#6b7280}.text-gray-900{color:#111827}
+.hidden{display:none!important}
+.message-box{margin-top:1rem;padding:.75rem 1rem;border-radius:.5rem;font-size:.875rem;display:flex;align-items:center;gap:.5rem}
+.message-success{background:#f0fdf4;color:#166534}.message-warning{background:#fefce8;color:#92400e}
+.icon{width:1rem;height:1rem;stroke:currentColor;fill:none;stroke-width:2}
+.error-text{color:#ef4444;font-size:.875rem;margin-top:.25rem}
+.color-info{background:#f8fafc;border:1px solid #e2e8f0;border-radius:.375rem;padding:.75rem;margin-top:.5rem;font-size:.875rem;color:#475569}
+.color-info-name{font-weight:600;color:#1e293b}
+.color-info-details{display:flex;gap:1rem;margin-top:.25rem}
+.color-info-hex{font-family:Monaco,Menlo,'Ubuntu Mono',monospace;background:#f1f5f9;padding:.125rem .375rem;border-radius:.25rem}
+.color-info-temp{text-transform:capitalize}
+@media (max-width:768px){.container{padding:1rem}.card{padding:1rem}.form-row{grid-template-columns:1fr}.color-info-details{flex-direction:column;gap:.5rem}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="text-center mb-8"><div class="text-center mb-8"> 
-            <img src="logo_palettable.png" alt="Palettable Logo" width="150" height="150"> </div>
-        </div>
-
-        <!-- Mode Selection Screen -->
-        <div id="modeSelectionScreen" class="mb-8">
-            <div class="text-center mb-6">
-                <h2 class="text-gray-900 font-semibold text-xl mb-2">Choose Your Approach</h2>
-                <p class="text-gray-600">How would you like to build your color palette?</p>
-            </div>
-            
-            <div class="mode-selector">
-                <div class="mode-option" data-mode="theme" onclick="selectMode('theme')">
-                    <div class="mode-icon">🎨</div>
-                    <div class="mode-title">Build from Theme</div>
-                    <div class="mode-description">Start with a dominant color and let us create harmonious, contrasting, or themed palettes based on design principles.</div>
-                </div>
-                
-                <div class="mode-option" data-mode="custom" onclick="selectMode('custom')">
-                    <div class="mode-icon">🎯</div>
-                    <div class="mode-title">Build My Own</div>
-                    <div class="mode-description">Hand-pick specific colors from our curated collection and fill remaining spots with smart suggestions.</div>
-                </div>
-            </div>
-            
-            <div class="continue-btn" id="continueBtn">
-                <button class="btn btn-primary" onclick="proceedToBuilder()" disabled id="proceedBtn">
-                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                    </svg>
-                    Continue to Palette Builder
-                </button>
-            </div>
-        </div>
-
-        <!-- Main App Interface (Initially Hidden) -->
-        <div id="mainInterface" class="hidden">
-            <!-- Input Section -->
-            <div class="mb-6 card">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-semibold text-gray-900">Palette Builder</h3>
-                    <button class="btn btn-secondary btn-small" onclick="goBackToModeSelection()">
-                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                        </svg>
-                        Change Mode
-                    </button>
-                </div>
-                
-                <!-- Theme Mode Section -->
-                <div id="themeModeSection" class="hidden">
-                    <h4 class="font-medium text-gray-900 mb-3">Dominant Color</h4>
-                    <div class="mb-4">
-                        <div class="flex gap-2">
-                            <div class="input-container">
-                                <div class="color-icon" id="colorIcon" style="background-color: #FCF1EF;"></div>
-                                <input 
-                                    type="text" 
-                                    id="colorInput" 
-                                    class="input" 
-                                    placeholder="3" 
-                                    value="3"
-                                    oninput="validateColor(this.value)"
-                                    onkeypress="handleKeyPress(event)"
-                                />
-                            </div>
-                        </div>
-                        <div id="colorError" class="error-text hidden">
-                            Color number not found. Try: 1-32 (e.g., 1 for Lilac Taupe, 2 for Pale Champagne, 3 for Petal Pink, etc.)
-                        </div>
-                        <div id="colorInfo" class="color-info">
-                            <div class="color-info-name" id="colorInfoName">Petal Pink</div>
-                            <div class="color-info-details">
-                                <div>Hex: <span class="color-info-hex" id="colorInfoHex">#FCF1EF</span></div>
-                                <div>Temperature: <span class="color-info-temp" id="colorInfoTemp">warm</span></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div>
-                            <label class="font-medium text-gray-900 mb-2" style="display: block;">Palette Size</label>
-                            <select class="select" id="paletteSize">
-                                <option value="3" selected>3 colors</option>
-                                <option value="4">4 colors</option>
-                                <option value="5">5 colors</option>
-                                <option value="6">6 colors</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="font-medium text-gray-900 mb-2" style="display: block;">Theme Category</label>
-                            <select class="select" id="themeLens" onchange="updateThemeOptions()">
-                                <option value="technical">Designer's Lens (Technical)</option>
-                                <option value="mood">Mood & Style Lens</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="font-medium text-gray-900 mb-2" style="display: block;">Theme</label>
-                        <select class="select" id="themeSelect">
-                            <!-- Options populated by updateThemeOptions() -->
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Custom Mode Section -->
-                <div id="customModeSection" class="hidden">
-                    <div class="mb-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <h4 class="font-medium text-gray-900">Select Colors</h4>
-                            <div class="text-sm text-gray-600">
-                                <span id="selectionCount">0</span> of <span id="targetSize">3</span> selected
-                            </div>
-                        </div>
-                        
-                        <!-- Color Grid -->
-                        <div id="colorGrid" class="grid grid-cols-8 gap-2 mb-4">
-                            <!-- Colors populated by JavaScript -->
-                        </div>
-                        
-                        <!-- Custom Controls -->
-                        <div class="space-y-3">
-                            <div>
-                                <label class="font-medium text-gray-900 mb-2" style="display: block;">Palette Size</label>
-                                <select class="select" id="customPaletteSize" onchange="updateCustomPaletteSize()">
-                                    <option value="3" selected>3 colors</option>
-                                    <option value="4">4 colors</option>
-                                    <option value="5">5 colors</option>
-                                    <option value="6">6 colors</option>
-                                </select>
-                            </div>
-                            
-                            <div id="fillOptions" class="hidden">
-                                <label class="font-medium text-gray-900 mb-2" style="display: block;">Fill Remaining With</label>
-                                <select class="select" id="fillStrategy">
-                                    <option value="random">Random Colors</option>
-                                    <option value="harmonious">Harmonious Colors</option>
-                                    <option value="contrasting">Contrasting Colors</option>
-                                    <option value="similar">Similar Style/Mood</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Generate Button -->
-                <div class="text-center">
-                    <button onclick="generatePalette()" class="btn btn-primary" id="generateBtn">
-                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
-                        </svg>
-                        Generate Palette
-                    </button>
-                </div>
-            </div>
-
-            <!-- Results Section -->
-            <div id="resultsSection" class="hidden">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-semibold text-gray-900">Generated Palette</h3>
-                    <div class="text-sm text-gray-600">
-                        Click colors to lock/unlock • Locked colors stay when regenerating
-                    </div>
-                </div>
-                
-                <div id="paletteContainer" class="palette-container">
-                    <!-- Palette will be generated here -->
-                </div>
-            </div>
-
-            <!-- Message Box -->
-            <div id="messageBox" class="message-box message-success hidden">
-                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <span id="messageText">Palette generated successfully!</span>
-            </div>
-        </div>
-
-        <div class="text-center text-gray-700 text-sm font-normal font-sans mt-8">
-            Custom-built by <a href="https://creatis.in/pages/stack" class="underline hover:text-black transition">Creatis Stack</a>, v.08.25
-        </div>
-    </div>
-
-    <script>
-        // Enhanced color database with mood/style properties
-        const colorDatabase = [
-            { id: 1, name: 'Lilac Taupe', hex: '#8A7EA6', family: 'cool', intensity: 'muted', style: ['vintage', 'romantic'] },
-            { id: 2, name: 'Pale Champagne', hex: '#E6E2B2', family: 'warm', intensity: 'light', style: ['vintage', 'romantic', 'minimal'] },
-            { id: 3, name: 'Petal Pink', hex: '#FCF1EF', family: 'warm', intensity: 'light', style: ['romantic', 'minimal'] },
-            { id: 4, name: 'Creamy Salmon', hex: '#ECC7BA', family: 'warm', intensity: 'light', style: ['romantic', 'vintage'] },
-            { id: 5, name: 'Dark Sage', hex: '#7C7C4A', family: 'warm', intensity: 'muted', style: ['earthy', 'vintage'] },
-            { id: 6, name: 'Pale Maroon', hex: '#A05B5F', family: 'warm', intensity: 'muted', style: ['vintage', 'earthy'] },
-            { id: 7, name: 'Muted Khaki', hex: '#B3A569', family: 'warm', intensity: 'muted', style: ['earthy', 'vintage'] },
-            { id: 8, name: 'Golden Rod', hex: '#C2B356', family: 'warm', intensity: 'medium', style: ['earthy', 'vintage'] },
-            { id: 9, name: 'Creamy Lemon', hex: '#FEE1A1', family: 'warm', intensity: 'light', style: ['playful', 'romantic'] },
-            { id: 10, name: 'Black', hex: '#000000', family: 'neutral', intensity: 'bold', style: ['modern', 'bold', 'luxury'] },
-            { id: 11, name: 'Burgundy', hex: '#A24A63', family: 'warm', intensity: 'bold', style: ['luxury', 'bold', 'vintage'] },
-            { id: 12, name: 'Rose Quartz', hex: '#C3788D', family: 'warm', intensity: 'medium', style: ['romantic', 'vintage'] },
-            { id: 13, name: 'Olive Green', hex: '#5F5A3C', family: 'warm', intensity: 'muted', style: ['earthy', 'vintage'] },
-            { id: 14, name: 'Misty Teal', hex: '#5E7875', family: 'cool', intensity: 'muted', style: ['earthy', 'modern'] },
-            { id: 15, name: 'Dark Maroon', hex: '#C2B356', family: 'warm', intensity: 'bold', style: ['luxury', 'bold'] },
-            { id: 16, name: 'Olive Brown', hex: '#7C774D', family: 'warm', intensity: 'muted', style: ['earthy', 'vintage'] },
-            { id: 17, name: 'Slate Gray', hex: '#7D8985', family: 'neutral', intensity: 'medium', style: ['modern', 'minimal'] },
-            { id: 18, name: 'Chocolate Brown', hex: '#6F625A', family: 'warm', intensity: 'muted', style: ['earthy', 'luxury'] },
-            { id: 19, name: 'Pastel Teal', hex: '#9EBAB5', family: 'cool', intensity: 'light', style: ['minimal', 'romantic'] },
-            { id: 20, name: 'Mint Ice', hex: '#C9D6CF', family: 'cool', intensity: 'light', style: ['minimal', 'modern'] },
-            { id: 21, name: 'Soft Stone', hex: '#96928C', family: 'neutral', intensity: 'light', style: ['minimal', 'modern'] },
-            { id: 22, name: 'Earth Brown', hex: '#877E72', family: 'warm', intensity: 'muted', style: ['earthy', 'minimal'] },
-            { id: 23, name: 'Harbor Mist', hex: '#A3B2BB', family: 'cool', intensity: 'light', style: ['minimal', 'modern'] },
-            { id: 24, name: 'Midnight Slate', hex: '#364A57', family: 'cool', intensity: 'bold', style: ['modern', 'luxury', 'bold'] },
-            { id: 25, name: 'Dusty Coral', hex: '#CD7C73', family: 'warm', intensity: 'medium', style: ['romantic', 'vintage'] },
-            { id: 26, name: 'Sage Green', hex: '#839D77', family: 'warm', intensity: 'muted', style: ['earthy', 'minimal'] },
-            { id: 27, name: 'Mocha Mousse', hex: '#A47B67', family: 'warm', intensity: 'muted', style: ['earthy', 'luxury'] },
-            { id: 28, name: 'Forest Fern', hex: '#52684B', family: 'warm', intensity: 'bold', style: ['earthy', 'bold'] },
-            { id: 29, name: 'Brick Red', hex: '#7F3336', family: 'warm', intensity: 'bold', style: ['bold', 'luxury'] },
-            { id: 30, name: 'Lemongrass', hex: '#D6CF8D', family: 'warm', intensity: 'light', style: ['playful', 'earthy'] },
-            { id: 31, name: 'Winter Pear', hex: '#899064', family: 'warm', intensity: 'muted', style: ['earthy', 'vintage'] },
-            { id: 32, name: 'Tomato Cream', hex: '#B15533', family: 'warm', intensity: 'bold', style: ['bold', 'earthy'] }
-        ];
-
-        let currentPalette = [];
-        let lockedColors = new Set();
-        let dominantColor = 3; // Default to Petal Pink
-        let dominantColorLocked = true; // Dominant color starts locked by default
-        let selectedColors = new Set(); // For custom mode
-        let buildMode = 'theme'; // Current build mode
-        let selectedModeType = null; // Track which mode is selected
-
-        // Theme options for each category
-        const themeOptions = {
-            technical: [
-                { value: 'harmonious', label: 'Harmonious – Similar Colors (Analogous)' },
-                { value: 'contrasting', label: 'Contrasting – Opposite Colors (Complementary)' },
-                { value: 'warm', label: 'Warm – Reds, Oranges, Yellows' },
-                { value: 'cool', label: 'Cool – Blues, Greens, Purples' },
-                { value: 'neutral', label: 'Neutral – Balanced tones, grays, beiges' }
-            ],
-            mood: [
-                { value: 'modern', label: 'Modern – Clean, minimal, high-contrast neutrals' },
-                { value: 'earthy', label: 'Earthy – Natural, muted, clay, sand, forest' },
-                { value: 'playful', label: 'Playful – Bright, saturated, fun tones' },
-                { value: 'vintage', label: 'Vintage – Faded, retro-inspired' },
-                { value: 'romantic', label: 'Romantic – Soft pastels, warm pinks, creams' },
-                { value: 'bold', label: 'Bold – Striking, deep, attention-grabbing colors' },
-                { value: 'luxury', label: 'Luxury – Deep jewel tones, rich colors' },
-                { value: 'minimal', label: 'Minimal – Soft neutrals, light grays, whites' }
-            ]
-        };
-
-        // Mode selection functions
-        function selectMode(mode) {
-            // Remove selection from all options
-            document.querySelectorAll('.mode-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            // Add selection to clicked option
-            document.querySelector(`[data-mode="${mode}"]`).classList.add('selected');
-            
-            selectedModeType = mode;
-            buildMode = mode;
-            
-            // Show continue button
-            const continueBtn = document.getElementById('continueBtn');
-            const proceedBtn = document.getElementById('proceedBtn');
-            continueBtn.classList.add('visible');
-            proceedBtn.disabled = false;
-        }
-
-        function proceedToBuilder() {
-            if (!selectedModeType) return;
-            
-            // Hide mode selection screen
-            document.getElementById('modeSelectionScreen').classList.add('hidden');
-            
-            // Show main interface with fade-in animation
-            const mainInterface = document.getElementById('mainInterface');
-            mainInterface.classList.remove('hidden');
-            mainInterface.classList.add('fade-in');
-            
-            // Show appropriate section based on selected mode
-            if (selectedModeType === 'theme') {
-                document.getElementById('themeModeSection').classList.remove('hidden');
-                document.getElementById('customModeSection').classList.add('hidden');
-            } else {
-                document.getElementById('themeModeSection').classList.add('hidden');
-                document.getElementById('customModeSection').classList.remove('hidden');
-                initializeCustomMode();
-            }
-        }
-
-        function goBackToModeSelection() {
-            // Hide main interface
-            document.getElementById('mainInterface').classList.add('hidden');
-            
-            // Show mode selection screen
-            document.getElementById('modeSelectionScreen').classList.remove('hidden');
-            
-            // Reset selections
-            document.querySelectorAll('.mode-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            document.getElementById('continueBtn').classList.remove('visible');
-            document.getElementById('proceedBtn').disabled = true;
-            selectedModeType = null;
-            
-            // Hide results if showing
-            document.getElementById('resultsSection').classList.add('hidden');
-        }
-
-        // Initialize custom mode
-        function initializeCustomMode() {
-            const colorGrid = document.getElementById('colorGrid');
-            
-            // Create color swatches
-            const swatches = colorDatabase.map(color => `
-                <div class="color-swatch" 
-                     style="background-color: ${color.hex};" 
-                     onclick="toggleColorSelection(${color.id})"
-                     title="${color.name} (#${color.id})">
-                    <div class="color-swatch-number">${color.id}</div>
-                </div>
-            `).join('');
-            
-            colorGrid.innerHTML = swatches;
-            updateSelectionCount();
-        }
-
-        // Toggle color selection in custom mode
-        function toggleColorSelection(colorId) {
-            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
-            
-            if (selectedColors.has(colorId)) {
-                selectedColors.delete(colorId);
-            } else {
-                if (selectedColors.size < targetSize) {
-                    selectedColors.add(colorId);
-                } else {
-                    showMessage(`You can only select ${targetSize} colors. Remove one first.`, 'warning');
-                    return;
-                }
-            }
-            
-            updateVisualSelection();
-            updateSelectionCount();
-            updateFillOptions();
-        }
-
-        // Update visual selection in custom mode
-        function updateVisualSelection() {
-            const swatches = document.querySelectorAll('.color-swatch');
-            swatches.forEach((swatch, index) => {
-                const colorId = colorDatabase[index].id;
-                if (selectedColors.has(colorId)) {
-                    swatch.classList.add('selected');
-                } else {
-                    swatch.classList.remove('selected');
-                }
-            });
-        }
-
-        // Update selection count display
-        function updateSelectionCount() {
-            const count = document.getElementById('selectionCount');
-            const target = document.getElementById('targetSize');
-            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
-            
-            count.textContent = selectedColors.size;
-            target.textContent = targetSize;
-        }
-
-        // Update custom palette size
-        function updateCustomPaletteSize() {
-            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
-            
-            // Don't reduce selectedColors - let user manually deselect if needed
-            // Just update the UI to reflect the new target size
-            updateSelectionCount();
-            updateFillOptions();
-            
-            // Show a message if they have more colors selected than the target size
-            if (selectedColors.size > targetSize) {
-                showMessage(`You have ${selectedColors.size} colors selected for a ${targetSize}-color palette. Extra colors will be used in order of selection.`, 'warning');
-            }
-        }
-
-        // Update fill options visibility
-        function updateFillOptions() {
-            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
-            const fillOptions = document.getElementById('fillOptions');
-            
-            if (selectedColors.size > 0 && selectedColors.size < targetSize) {
-                fillOptions.classList.remove('hidden');
-            } else {
-                fillOptions.classList.add('hidden');
-            }
-        }
-
-        function updateThemeOptions() {
-            const themeLens = document.getElementById('themeLens').value;
-            const themeSelect = document.getElementById('themeSelect');
-            
-            themeSelect.innerHTML = '';
-            themeOptions[themeLens].forEach(option => {
-                const optionElement = document.createElement('option');
-                optionElement.value = option.value;
-                optionElement.textContent = option.label;
-                themeSelect.appendChild(optionElement);
-            });
-        }
-
-        // Color validation and info display
-        function validateColor(input) {
-            const inputField = document.getElementById('colorInput');
-            const colorIcon = document.getElementById('colorIcon');
-            const errorDiv = document.getElementById('colorError');
-            const colorInfoDiv = document.getElementById('colorInfo');
-            const generateBtn = document.getElementById('generateBtn');
-
-            // Parse the input as a number
-            const colorId = parseInt(input);
-
-            // Check if input is a valid number and within range
-            if (isNaN(colorId) || colorId < 1 || colorId > 32) {
-                inputField.classList.add('error');
-                errorDiv.classList.remove('hidden');
-                colorInfoDiv.classList.add('hidden');
-                generateBtn.disabled = true;
-                return false;
-            }
-
-            // Find color by ID
-            const foundColor = colorDatabase.find(color => color.id === colorId);
-
-            if (foundColor) {
-                inputField.classList.remove('error');
-                errorDiv.classList.add('hidden');
-                colorIcon.style.backgroundColor = foundColor.hex;
-                dominantColor = colorId;
-                dominantColorLocked = true; // Reset to locked when changing dominant color
-                generateBtn.disabled = false;
-                
-                // Update color info display
-                updateColorInfo(foundColor);
-                colorInfoDiv.classList.remove('hidden');
-                
-                return true;
-            } else {
-                inputField.classList.add('error');
-                errorDiv.classList.remove('hidden');
-                colorInfoDiv.classList.add('hidden');
-                generateBtn.disabled = true;
-                return false;
-            }
-        }
-
-        function updateColorInfo(color) {
-            document.getElementById('colorInfoName').textContent = color.name;
-            document.getElementById('colorInfoHex').textContent = color.hex;
-            document.getElementById('colorInfoTemp').textContent = color.family;
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter' && !document.getElementById('generateBtn').disabled) {
-                generatePalette();
-            }
-        }
-
-        // Palette generation
-        function generatePalette() {
-            if (buildMode === 'theme') {
-                generateThemePalette();
-            } else {
-                generateCustomPalette();
-            }
-        }
-
-        function generateThemePalette() {
-            if (!validateColor(dominantColor)) return;
-
-            const size = parseInt(document.getElementById('paletteSize').value);
-            const theme = document.getElementById('themeSelect').value;
-            
-            // Get dominant color info by ID
-            const dominantColorInfo = colorDatabase.find(c => c.id === dominantColor);
-
-            // Reset locks and add dominant color as locked if it should be
-            lockedColors.clear();
-            if (dominantColorLocked) {
-                lockedColors.add(dominantColor);
-            }
-
-            // Generate palette
-            currentPalette = createPalette(dominantColorInfo, theme, size);
-            displayPalette();
-            
-            document.getElementById('resultsSection').classList.remove('hidden');
-            showMessage('Palette generated successfully!', 'success');
-        }
-
-        function generateCustomPalette() {
-            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
-            
-            if (selectedColors.size === 0) {
-                showMessage('Please select at least one color to build your palette.', 'warning');
-                return;
-            }
-
-            let palette = [];
-            
-            // Add selected colors (up to target size)
-            const selectedArray = Array.from(selectedColors);
-            const colorsToUse = selectedArray.slice(0, targetSize);
-            
-            colorsToUse.forEach(colorId => {
-                const color = colorDatabase.find(c => c.id === colorId);
-                if (color) {
-                    palette.push(color);
-                }
-            });
-
-            // Fill remaining spots if needed
-            if (palette.length < targetSize) {
-                const fillStrategy = document.getElementById('fillStrategy').value;
-                const remainingCount = targetSize - palette.length;
-                const additionalColors = getFillColors(palette, fillStrategy, remainingCount);
-                palette.push(...additionalColors);
-            }
-
-            currentPalette = shuffleArray(palette).slice(0, targetSize);
-            lockedColors = new Set(colorsToUse); // Lock only the colors that made it into the palette
-            displayPalette();
-            
-            document.getElementById('resultsSection').classList.remove('hidden');
-            showMessage('Custom palette generated successfully!', 'success');
-        }
-
-        function regenerateCustomPalette() {
-            const targetSize = parseInt(document.getElementById('customPaletteSize').value);
-            
-            let palette = [];
-            
-            // First, add all locked colors from the current palette
-            lockedColors.forEach(colorId => {
-                const color = colorDatabase.find(c => c.id === colorId);
-                if (color) {
-                    palette.push(color);
-                }
-            });
-
-            // Fill remaining spots if needed
-            if (palette.length < targetSize) {
-                const fillStrategy = document.getElementById('fillStrategy').value;
-                const remainingCount = targetSize - palette.length;
-                const additionalColors = getFillColors(palette, fillStrategy, remainingCount);
-                palette.push(...additionalColors);
-            }
-
-            currentPalette = shuffleArray(palette).slice(0, targetSize);
-            displayPalette();
-            showMessage('Custom palette regenerated with locked colors preserved!', 'success');
-        }
-
-        function getFillColors(existingPalette, strategy, count) {
-            let availableColors = colorDatabase.filter(c => 
-                !existingPalette.some(existing => existing.id === c.id)
-            );
-
-            let selectedColors = [];
-
-            switch (strategy) {
-                case 'harmonious':
-                    // Get colors similar to existing ones
-                    const families = [...new Set(existingPalette.map(c => c.family))];
-                    selectedColors = shuffleArray(availableColors.filter(c => 
-                        families.includes(c.family)
-                    )).slice(0, count);
-                    break;
-                    
-                case 'contrasting':
-                    // Get colors from opposite families
-                    const oppositeFamilies = existingPalette.map(c => 
-                        c.family === 'warm' ? 'cool' : c.family === 'cool' ? 'warm' : 'neutral'
-                    );
-                    selectedColors = shuffleArray(availableColors.filter(c => 
-                        oppositeFamilies.includes(c.family)
-                    )).slice(0, count);
-                    break;
-                    
-                case 'similar':
-                    // Get colors with similar styles
-                    const styles = [...new Set(existingPalette.flatMap(c => c.style))];
-                    selectedColors = shuffleArray(availableColors.filter(c => 
-                        c.style.some(style => styles.includes(style))
-                    )).slice(0, count);
-                    break;
-                    
-                default: // random
-                    selectedColors = shuffleArray(availableColors).slice(0, count);
-                    break;
-            }
-
-            // Fill with random if not enough colors found
-            if (selectedColors.length < count) {
-                const remaining = shuffleArray(availableColors.filter(c => 
-                    !selectedColors.some(selected => selected.id === c.id)
-                )).slice(0, count - selectedColors.length);
-                selectedColors.push(...remaining);
-            }
-
-            return selectedColors;
-        }
-
-        function createPalette(dominantColor, theme, size) {
-            let availableColors = [...colorDatabase];
-            let palette = [];
-
-            // Remove all locked colors from available colors first
-            lockedColors.forEach(colorId => {
-                availableColors = availableColors.filter(c => c.id !== colorId);
-            });
-
-            // Handle locked colors first
-            if (lockedColors.size > 0) {
-                // Add locked colors to palette
-                lockedColors.forEach(colorId => {
-                    const lockedColor = colorDatabase.find(c => c.id === colorId);
-                    if (lockedColor) {
-                        palette.push(lockedColor);
-                    }
-                });
-                
-                // Add dominant color if not already locked
-                if (!lockedColors.has(dominantColor.id)) {
-                    palette.push(dominantColor);
-                    availableColors = availableColors.filter(c => c.id !== dominantColor.id);
-                }
-            } else {
-                // Start fresh with dominant color
-                palette.push(dominantColor);
-                availableColors = availableColors.filter(c => c.id !== dominantColor.id);
-            }
-
-            // Calculate how many more colors we need
-            const remainingSlots = size - palette.length;
-            let selectedColors = [];
-
-            if (remainingSlots > 0) {
-                switch (theme) {
-                    case 'harmonious':
-                        selectedColors = getHarmoniousColors(dominantColor, availableColors, remainingSlots);
-                        break;
-                    case 'contrasting':
-                        selectedColors = getContrastingColors(dominantColor, availableColors, remainingSlots);
-                        break;
-                    case 'warm':
-                        selectedColors = getThemeColors(availableColors, 'warm', remainingSlots);
-                        break;
-                    case 'cool':
-                        selectedColors = getThemeColors(availableColors, 'cool', remainingSlots);
-                        break;
-                    case 'neutral':
-                        selectedColors = getNeutralColors(availableColors, remainingSlots);
-                        break;
-                    case 'modern':
-                        selectedColors = getStyleColors(availableColors, 'modern', remainingSlots);
-                        break;
-                    case 'earthy':
-                        selectedColors = getStyleColors(availableColors, 'earthy', remainingSlots);
-                        break;
-                    case 'playful':
-                        selectedColors = getStyleColors(availableColors, 'playful', remainingSlots);
-                        break;
-                    case 'vintage':
-                        selectedColors = getStyleColors(availableColors, 'vintage', remainingSlots);
-                        break;
-                    case 'romantic':
-                        selectedColors = getStyleColors(availableColors, 'romantic', remainingSlots);
-                        break;
-                    case 'bold':
-                        selectedColors = getBoldColors(availableColors, remainingSlots);
-                        break;
-                    case 'luxury':
-                        selectedColors = getStyleColors(availableColors, 'luxury', remainingSlots);
-                        break;
-                    case 'minimal':
-                        selectedColors = getMinimalColors(availableColors, remainingSlots);
-                        break;
-                }
-
-                // Add the selected colors to palette
-                palette.push(...selectedColors);
-            }
-
-            // Shuffle the final palette to mix locked and new colors
-            return shuffleArray(palette).slice(0, size);
-        }
-
-        function getHarmoniousColors(dominantColor, availableColors, count) {
-            // Get colors from same family or similar hues
-            const sameFamily = shuffleArray(availableColors.filter(c => c.family === dominantColor.family));
-            const otherColors = shuffleArray(availableColors.filter(c => c.family !== dominantColor.family));
-            
-            // Prefer same family, then others, but randomize the selection
-            const selected = [];
-            let sameFamilyIndex = 0;
-            let otherIndex = 0;
-            
-            for (let i = 0; i < count; i++) {
-                if (sameFamilyIndex < sameFamily.length && Math.random() > 0.3) {
-                    selected.push(sameFamily[sameFamilyIndex]);
-                    sameFamilyIndex++;
-                } else if (otherIndex < otherColors.length) {
-                    selected.push(otherColors[otherIndex]);
-                    otherIndex++;
-                } else if (sameFamilyIndex < sameFamily.length) {
-                    selected.push(sameFamily[sameFamilyIndex]);
-                    sameFamilyIndex++;
-                }
-            }
-            
-            return selected;
-        }
-
-        function getNeutralColors(availableColors, count) {
-            const neutrals = shuffleArray(availableColors.filter(c => 
-                c.family === 'neutral' || c.intensity === 'muted' || c.style.includes('minimal')
-            ));
-            const others = shuffleArray(availableColors.filter(c => 
-                c.family !== 'neutral' && c.intensity !== 'muted' && !c.style.includes('minimal')
-            ));
-            
-            const selected = [];
-            let neutralIndex = 0;
-            let otherIndex = 0;
-            
-            for (let i = 0; i < count; i++) {
-                if (neutralIndex < neutrals.length && Math.random() > 0.2) {
-                    selected.push(neutrals[neutralIndex]);
-                    neutralIndex++;
-                } else if (otherIndex < others.length) {
-                    selected.push(others[otherIndex]);
-                    otherIndex++;
-                } else if (neutralIndex < neutrals.length) {
-                    selected.push(neutrals[neutralIndex]);
-                    neutralIndex++;
-                }
-            }
-            
-            return selected;
-        }
-
-        function getStyleColors(availableColors, style, count) {
-            const styleColors = shuffleArray(availableColors.filter(c => c.style.includes(style)));
-            const others = shuffleArray(availableColors.filter(c => !c.style.includes(style)));
-            
-            const selected = [];
-            let styleIndex = 0;
-            let otherIndex = 0;
-            
-            for (let i = 0; i < count; i++) {
-                if (styleIndex < styleColors.length && Math.random() > 0.25) {
-                    selected.push(styleColors[styleIndex]);
-                    styleIndex++;
-                } else if (otherIndex < others.length) {
-                    selected.push(others[otherIndex]);
-                    otherIndex++;
-                } else if (styleIndex < styleColors.length) {
-                    selected.push(styleColors[styleIndex]);
-                    styleIndex++;
-                }
-            }
-            
-            return selected;
-        }
-
-        function getBoldColors(availableColors, count) {
-            const boldColors = shuffleArray(availableColors.filter(c => 
-                c.intensity === 'bold' || c.style.includes('bold')
-            ));
-            const others = shuffleArray(availableColors.filter(c => 
-                c.intensity !== 'bold' && !c.style.includes('bold')
-            ));
-            
-            const selected = [];
-            let boldIndex = 0;
-            let otherIndex = 0;
-            
-            for (let i = 0; i < count; i++) {
-                if (boldIndex < boldColors.length && Math.random() > 0.2) {
-                    selected.push(boldColors[boldIndex]);
-                    boldIndex++;
-                } else if (otherIndex < others.length) {
-                    selected.push(others[otherIndex]);
-                    otherIndex++;
-                } else if (boldIndex < boldColors.length) {
-                    selected.push(boldColors[boldIndex]);
-                    boldIndex++;
-                }
-            }
-            
-            return selected;
-        }
-
-        function getMinimalColors(availableColors, count) {
-            const minimalColors = shuffleArray(availableColors.filter(c => 
-                c.style.includes('minimal') || c.intensity === 'light' || c.family === 'neutral'
-            ));
-            const others = shuffleArray(availableColors.filter(c => 
-                !c.style.includes('minimal') && c.intensity !== 'light' && c.family !== 'neutral'
-            ));
-            
-            const selected = [];
-            let minimalIndex = 0;
-            let otherIndex = 0;
-            
-            for (let i = 0; i < count; i++) {
-                if (minimalIndex < minimalColors.length && Math.random() > 0.15) {
-                    selected.push(minimalColors[minimalIndex]);
-                    minimalIndex++;
-                } else if (otherIndex < others.length) {
-                    selected.push(others[otherIndex]);
-                    otherIndex++;
-                } else if (minimalIndex < minimalColors.length) {
-                    selected.push(minimalColors[minimalIndex]);
-                    minimalIndex++;
-                }
-            }
-            
-            return selected;
-        }
-
-        function getContrastingColors(dominantColor, availableColors, count) {
-            // Get colors from opposite family
-            const oppositeFamily = dominantColor.family === 'warm' ? 'cool' : 'warm';
-            const contrasting = shuffleArray(availableColors.filter(c => c.family === oppositeFamily));
-            const others = shuffleArray(availableColors.filter(c => c.family !== oppositeFamily));
-            
-            // Prefer contrasting colors first
-            const selected = [];
-            let contrastingIndex = 0;
-            let otherIndex = 0;
-            
-            for (let i = 0; i < count; i++) {
-                if (contrastingIndex < contrasting.length && Math.random() > 0.2) {
-                    selected.push(contrasting[contrastingIndex]);
-                    contrastingIndex++;
-                } else if (otherIndex < others.length) {
-                    selected.push(others[otherIndex]);
-                    otherIndex++;
-                } else if (contrastingIndex < contrasting.length) {
-                    selected.push(contrasting[contrastingIndex]);
-                    contrastingIndex++;
-                }
-            }
-            
-            return selected;
-        }
-
-        function getThemeColors(availableColors, family, count) {
-            const themeColors = shuffleArray(availableColors.filter(c => c.family === family));
-            const otherColors = shuffleArray(availableColors.filter(c => c.family !== family));
-            
-            // Prefer theme colors first
-            const selected = [];
-            let themeIndex = 0;
-            let otherIndex = 0;
-            
-            for (let i = 0; i < count; i++) {
-                if (themeIndex < themeColors.length && Math.random() > 0.25) {
-                    selected.push(themeColors[themeIndex]);
-                    themeIndex++;
-                } else if (otherIndex < otherColors.length) {
-                    selected.push(otherColors[otherIndex]);
-                    otherIndex++;
-                } else if (themeIndex < themeColors.length) {
-                    selected.push(themeColors[themeIndex]);
-                    themeIndex++;
-                }
-            }
-            
-            return selected;
-        }
-
-        function shuffleArray(array) {
-            const shuffled = [...array];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            return shuffled;
-        }
-
-        // Display palette
-        function displayPalette() {
-            const container = document.getElementById('paletteContainer');
-            const size = buildMode === 'theme' ? parseInt(document.getElementById('paletteSize').value) : parseInt(document.getElementById('customPaletteSize').value);
-            const theme = buildMode === 'theme' ? document.getElementById('themeSelect').value : 'custom';
-            
-            const colorsHtml = currentPalette.map((color, index) => {
-                const isLocked = lockedColors.has(color.id);
-                return `
-                    <div class="palette-color ${isLocked ? 'locked' : ''}" 
-                         style="background-color: ${color.hex};" 
-                         onclick="toggleColorLock(${index}, ${color.id})"
-                         title="Click to ${isLocked ? 'unlock' : 'lock'} • ${color.name}">
-                        ${isLocked ? '<div class="lock-icon">🔒</div>' : ''}
-                        <div class="color-hex">#${color.id}</div>
-                    </div>
-                `;
-            }).join('');
-
-            const paletteTitle = buildMode === 'theme' ? 
-                `${theme.charAt(0).toUpperCase() + theme.slice(1)} Palette (${currentPalette.length} colors)` :
-                `Custom Palette (${currentPalette.length} colors)`;
-
-            const paletteDescription = buildMode === 'theme' ?
-                `Generated from #${dominantColor} • ${lockedColors.size} color${lockedColors.size !== 1 ? 's' : ''} locked` :
-                `Built from selected colors • ${lockedColors.size} color${lockedColors.size !== 1 ? 's' : ''} locked`;
-
-            container.innerHTML = `
-                <div class="palette-colors">
-                    ${colorsHtml}
-                </div>
-                <div class="palette-info">
-                    <div class="palette-name">${paletteTitle}</div>
-                    <div class="palette-description">${paletteDescription}</div>
-                    <div class="palette-actions">
-                        <button class="btn btn-secondary btn-small" onclick="regeneratePalette()">
-                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                            </svg>
-                            Regenerate
-                        </button>
-                        <button class="btn btn-primary btn-small" onclick="savePalette()">
-                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2z"></path>
-                            </svg>
-                            Save Palette
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Color locking
-        function toggleColorLock(index, colorId) {
-            if (lockedColors.has(colorId)) {
-                lockedColors.delete(colorId);
-                // If unlocking the dominant color, mark it as no longer the dominant
-                if (colorId === dominantColor) {
-                    dominantColorLocked = false;
-                }
-                showMessage(`Unlocked #${colorId}`, 'success');
-            } else {
-                lockedColors.add(colorId);
-                showMessage(`Locked #${colorId}`, 'success');
-            }
-            
-            // Update display
-            displayPalette();
-        }
-
-        function regeneratePalette() {
-            if (buildMode === 'theme') {
-                const size = parseInt(document.getElementById('paletteSize').value);
-                const theme = document.getElementById('themeSelect').value;
-                const dominantColorInfo = colorDatabase.find(c => c.id === dominantColor);
-                currentPalette = createPalette(dominantColorInfo, theme, size);
-            } else {
-                regenerateCustomPalette();
-                return;
-            }
-            
-            displayPalette();
-            showMessage('Palette regenerated with locked colors preserved!', 'success');
-        }
-
-        function savePalette() {
-            const paletteText = currentPalette.map(c => `#${c.id} - ${c.name}: ${c.hex}`).join('\n');
-            
-            navigator.clipboard.writeText(paletteText).then(() => {
-                showMessage('Palette copied to clipboard!', 'success');
-            }).catch(() => {
-                // Fallback
-                const textArea = document.createElement('textarea');
-                textArea.value = paletteText;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showMessage('Palette copied to clipboard!', 'success');
-            });
-        }
-
-        function showMessage(text, type = 'success') {
-            const messageBox = document.getElementById('messageBox');
-            const messageText = document.getElementById('messageText');
-            
-            messageText.textContent = text;
-            messageBox.className = `message-box message-${type}`;
-            messageBox.classList.remove('hidden');
-            
-            setTimeout(() => {
-                messageBox.classList.add('hidden');
-            }, 3000);
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            updateThemeOptions(); // Initialize theme options
-            validateColor('3');
-            // Set initial color icon
-            const initialColor = colorDatabase.find(c => c.id === 3);
-            if (initialColor) {
-                document.getElementById('colorIcon').style.backgroundColor = initialColor.hex;
-                updateColorInfo(initialColor);
-            }
-        });
-    </script>
+<div class="container">
+<div class="text-center mb-8">
+<img src="logo_palettable.png" alt="Palettable Logo" width="150" height="150">
+</div>
+
+<div id="mainInterface">
+<div class="mb-6 card">
+<h3 class="font-semibold text-gray-900 mb-4">Palette Builder</h3>
+
+<div>
+<h4 class="font-medium text-gray-900 mb-2">Dominant Color</h4>
+<div class="mb-4">
+<div class="flex gap-2">
+<div class="input-container">
+<div class="color-icon" id="colorIcon" style="background-color:#FCF1EF;"></div>
+<input type="text" id="colorInput" class="input" placeholder="3" value="3"/>
+</div>
+</div>
+<div id="colorError" class="error-text hidden">
+Color number not found. Try: 1-32 (e.g., 1 for Lilac Taupe, 2 for Pale Champagne, 3 for Petal Pink, etc.)
+</div>
+<div id="colorInfo" class="color-info">
+<div class="color-info-name" id="colorInfoName">Petal Pink</div>
+<div class="color-info-details">
+<div>Hex: <span class="color-info-hex" id="colorInfoHex">#FCF1EF</span></div>
+<div>Temperature: <span class="color-info-temp" id="colorInfoTemp">warm</span></div>
+</div>
+</div>
+</div>
+
+<div class="form-row">
+<div>
+<label class="font-medium text-gray-900 mb-2" style="display:block;">Palette Size</label>
+<select class="select" id="paletteSize">
+<option value="2">2 colors</option>
+<option value="3" selected>3 colors</option>
+<option value="4">4 colors</option>
+<option value="5">5 colors</option>
+<option value="6">6 colors</option>
+</select>
+</div>
+
+<div>
+<label class="font-medium text-gray-900 mb-2" style="display:block;">What feeling do you want this palette to give?</label>
+<select class="select" id="feelingSelect">
+<option value="calm">Calm</option>
+<option value="playful">Playful</option>
+<option value="earthy">Earthy</option>
+<option value="minimal">Minimal</option>
+<option value="bold">Bold</option>
+</select>
+</div>
+</div>
+</div>
+
+<div class="text-center mt-4">
+<button class="btn btn-primary" id="generateBtn">
+<svg class="icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/></svg>
+Generate Palette
+</button>
+</div>
+</div>
+
+<div id="resultsSection" class="hidden">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-semibold text-gray-900">Generated Palette</h3>
+<div class="text-sm text-gray-600">
+Click colors to lock/unlock • Locked colors stay when regenerating
+</div>
+</div>
+<div id="paletteContainer" class="palette-container"></div>
+</div>
+
+<div id="messageBox" class="message-box message-success hidden">
+<svg class="icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+<span id="messageText">Palette generated successfully!</span>
+</div>
+</div>
+
+<div class="text-center text-gray-700 text-sm font-normal font-sans mt-8">
+Custom-built by <a href="https://creatis.in/pages/stack" class="underline hover:text-black transition">Creatis Stack</a>, v.08.25
+</div>
+</div>
+
+<script>
+/* ——— DATA ——— */
+const colorDatabase = [
+{ id:1,name:'Lilac Taupe',hex:'#8A7EA6',family:'cool',intensity:'muted',style:['vintage','romantic'],feeling:['calm','minimal'] },
+{ id:2,name:'Pale Champagne',hex:'#E6E2B2',family:'warm',intensity:'light',style:['vintage','romantic','minimal'],feeling:['calm','minimal'] },
+{ id:3,name:'Petal Pink',hex:'#FCF1EF',family:'warm',intensity:'light',style:['romantic','minimal'],feeling:['calm','minimal'] },
+{ id:4,name:'Creamy Salmon',hex:'#ECC7BA',family:'warm',intensity:'light',style:['romantic','vintage'],feeling:['calm','playful'] },
+{ id:5,name:'Dark Sage',hex:'#7C7C4A',family:'warm',intensity:'muted',style:['earthy','vintage'],feeling:['earthy','calm'] },
+{ id:6,name:'Pale Maroon',hex:'#A05B5F',family:'warm',intensity:'muted',style:['vintage','earthy'],feeling:['earthy','bold'] },
+{ id:7,name:'Muted Khaki',hex:'#B3A569',family:'warm',intensity:'muted',style:['earthy','vintage'],feeling:['earthy','calm'] },
+{ id:8,name:'Golden Rod',hex:'#C2B356',family:'warm',intensity:'medium',style:['earthy','vintage'],feeling:['earthy','playful'] },
+{ id:9,name:'Creamy Lemon',hex:'#FEE1A1',family:'warm',intensity:'light',style:['playful','romantic'],feeling:['playful','calm'] },
+{ id:10,name:'Black',hex:'#000000',family:'neutral',intensity:'bold',style:['modern','bold','luxury'],feeling:['bold','minimal'] },
+{ id:11,name:'Burgundy',hex:'#A24A63',family:'warm',intensity:'bold',style:['luxury','bold','vintage'],feeling:['bold','earthy'] },
+{ id:12,name:'Rose Quartz',hex:'#C3788D',family:'warm',intensity:'medium',style:['romantic','vintage'],feeling:['calm','playful'] },
+{ id:13,name:'Olive Green',hex:'#5F5A3C',family:'warm',intensity:'muted',style:['earthy','vintage'],feeling:['earthy','calm'] },
+{ id:14,name:'Misty Teal',hex:'#5E7875',family:'cool',intensity:'muted',style:['earthy','modern'],feeling:['calm','minimal'] },
+{ id:15,name:'Dark Maroon',hex:'#8B3A3A',family:'warm',intensity:'bold',style:['luxury','bold'],feeling:['bold','earthy'] }, /* fixed */
+{ id:16,name:'Olive Brown',hex:'#7C774D',family:'warm',intensity:'muted',style:['earthy','vintage'],feeling:['earthy','calm'] },
+{ id:17,name:'Slate Gray',hex:'#7D8985',family:'neutral',intensity:'medium',style:['modern','minimal'],feeling:['minimal','calm'] },
+{ id:18,name:'Chocolate Brown',hex:'#6F625A',family:'warm',intensity:'muted',style:['earthy','luxury'],feeling:['earthy','bold'] },
+{ id:19,name:'Pastel Teal',hex:'#9EBAB5',family:'cool',intensity:'light',style:['minimal','romantic'],feeling:['calm','minimal'] },
+{ id:20,name:'Mint Ice',hex:'#C9D6CF',family:'cool',intensity:'light',style:['minimal','modern'],feeling:['calm','minimal'] },
+{ id:21,name:'Soft Stone',hex:'#96928C',family:'neutral',intensity:'light',style:['minimal','modern'],feeling:['minimal','calm'] },
+{ id:22,name:'Earth Brown',hex:'#877E72',family:'warm',intensity:'muted',style:['earthy','minimal'],feeling:['earthy','minimal'] },
+{ id:23,name:'Harbor Mist',hex:'#A3B2BB',family:'cool',intensity:'light',style:['minimal','modern'],feeling:['calm','minimal'] },
+{ id:24,name:'Midnight Slate',hex:'#364A57',family:'cool',intensity:'bold',style:['modern','luxury','bold'],feeling:['bold','minimal'] },
+{ id:25,name:'Dusty Coral',hex:'#CD7C73',family:'warm',intensity:'medium',style:['romantic','vintage'],feeling:['playful','calm'] },
+{ id:26,name:'Sage Green',hex:'#839D77',family:'warm',intensity:'muted',style:['earthy','minimal'],feeling:['earthy','calm'] },
+{ id:27,name:'Mocha Mousse',hex:'#A47B67',family:'warm',intensity:'muted',style:['earthy','luxury'],feeling:['earthy','calm'] },
+{ id:28,name:'Forest Fern',hex:'#52684B',family:'warm',intensity:'bold',style:['earthy','bold'],feeling:['earthy','bold'] },
+{ id:29,name:'Brick Red',hex:'#7F3336',family:'warm',intensity:'bold',style:['bold','luxury'],feeling:['bold','earthy'] },
+{ id:30,name:'Lemongrass',hex:'#D6CF8D',family:'warm',intensity:'light',style:['playful','earthy'],feeling:['playful','earthy'] },
+{ id:31,name:'Winter Pear',hex:'#899064',family:'warm',intensity:'muted',style:['earthy','vintage'],feeling:['earthy','calm'] },
+{ id:32,name:'Tomato Cream',hex:'#B15533',family:'warm',intensity:'bold',style:['bold','earthy'],feeling:['bold','earthy'] }
+];
+
+let currentPalette = [];
+let lockedColors = new Set();
+let dominantColor = 3;
+
+function showMessage(msg,type='success'){
+const box=document.getElementById('messageBox');
+const text=document.getElementById('messageText');
+box.classList.remove('hidden','message-success','message-warning');
+box.classList.add(type==='success'?'message-success':'message-warning');
+text.textContent=msg;
+setTimeout(()=>box.classList.add('hidden'),2500);
+}
+
+function validateColor(input){
+const inputField=document.getElementById('colorInput');
+const colorIcon=document.getElementById('colorIcon');
+const errorDiv=document.getElementById('colorError');
+const colorInfoDiv=document.getElementById('colorInfo');
+const generateBtn=document.getElementById('generateBtn');
+const colorId=parseInt(input);
+
+if(isNaN(colorId)||colorId<1||colorId>32){
+inputField.classList.add('error');
+errorDiv.classList.remove('hidden');
+colorInfoDiv.classList.add('hidden');
+generateBtn.disabled=true;
+return false;
+}
+
+const foundColor=colorDatabase.find(c=>c.id===colorId);
+if(foundColor){
+inputField.classList.remove('error');
+errorDiv.classList.add('hidden');
+colorIcon.style.backgroundColor=foundColor.hex;
+dominantColor=colorId;
+updateColorInfo(foundColor);
+colorInfoDiv.classList.remove('hidden');
+generateBtn.disabled=false;
+return true;
+}
+
+inputField.classList.add('error');
+errorDiv.classList.remove('hidden');
+colorInfoDiv.classList.add('hidden');
+generateBtn.disabled=true;
+return false;
+}
+
+function updateColorInfo(color){
+document.getElementById('colorInfoName').textContent=color.name;
+document.getElementById('colorInfoHex').textContent=color.hex;
+document.getElementById('colorInfoTemp').textContent=color.family;
+}
+
+function shuffleArray(array){
+const s=[...array];
+for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]];}
+return s;
+}
+
+function getFeelingColors(available,feeling,count){
+const feelingColors=shuffleArray(available.filter(c=>c.feeling?.includes(feeling)));
+const others=shuffleArray(available.filter(c=>!c.feeling?.includes(feeling)));
+const selected=[];let fi=0,oi=0;
+for(let i=0;i<count;i++){
+if(fi<feelingColors.length&&Math.random()>0.3){selected.push(feelingColors[fi++]);}
+else if(oi<others.length){selected.push(others[oi++]);}
+else if(fi<feelingColors.length){selected.push(feelingColors[fi++]);}
+}
+return selected;
+}
+
+function createPalette(dominant,feeling,size){
+let available=[...colorDatabase].filter(c=>!lockedColors.has(c.id));
+let palette=[...Array.from(lockedColors)].map(id=>colorDatabase.find(c=>c.id===id));
+
+if(!lockedColors.has(dominant.id)){
+palette.unshift(dominant);
+available=available.filter(c=>c.id!==dominant.id);
+}
+
+const remaining=size-palette.length;
+if(remaining>0){
+palette.push(...getFeelingColors(available,feeling,remaining));
+}
+
+// ensure unique + trim
+const unique=[];
+for(const c of palette){if(!unique.find(u=>u.id===c.id)){unique.push(c);}}
+return unique.slice(0,size);
+}
+
+function generatePalette(){
+if(!validateColor(dominantColor)) return;
+const size=parseInt(document.getElementById('paletteSize').value);
+const feeling=document.getElementById('feelingSelect').value;
+const dominantInfo=colorDatabase.find(c=>c.id===dominantColor);
+
+currentPalette=createPalette(dominantInfo,feeling,size);
+displayPalette();
+document.getElementById('resultsSection').classList.remove('hidden');
+showMessage('Palette generated successfully!','success');
+}
+
+function displayPalette(){
+const container=document.getElementById('paletteContainer');
+const size=parseInt(document.getElementById('paletteSize').value);
+const feeling=document.getElementById('feelingSelect').value;
+
+const colorsHtml=currentPalette.map(color=>{
+const isLocked=lockedColors.has(color.id);
+return `
+<div class="palette-color ${isLocked?'locked':''}"
+style="background-color:${color.hex};"
+data-color-id="${color.id}"
+title="Click to ${isLocked?'unlock':'lock'} • ${color.name}">
+${isLocked?'<div class="lock-icon">🔒</div>':''}
+<div class="color-hex">#${color.id}</div>
+</div>`;
+}).join('');
+
+const paletteTitle=`${feeling.charAt(0).toUpperCase()+feeling.slice(1)} Palette (${currentPalette.length} colors)`;
+const paletteDescription=`Generated from #${dominantColor} • ${lockedColors.size} color${lockedColors.size!==1?'s':''} locked`;
+
+container.innerHTML=`
+<div class="palette-colors">${colorsHtml}</div>
+<div class="palette-info">
+<div class="palette-name">${paletteTitle}</div>
+<div class="palette-description">${paletteDescription}</div>
+<div class="palette-actions">
+<button class="btn btn-secondary btn-small" id="regenerateBtn">
+Regenerate
+</button>
+<button class="btn btn-primary btn-small" id="saveBtn">
+Save Palette
+</button>
+</div>
+</div>`;
+
+// lock/unlock
+document.querySelectorAll('.palette-color').forEach(el=>{
+el.addEventListener('click',()=>{
+const id=parseInt(el.getAttribute('data-color-id'));
+if(lockedColors.has(id)) lockedColors.delete(id); else lockedColors.add(id);
+displayPalette();
+});
+});
+
+// regenerate
+document.getElementById('regenerateBtn').addEventListener('click',generatePalette);
+
+// save (copy to clipboard)
+document.getElementById('saveBtn').addEventListener('click',()=>{
+const text=currentPalette.map(c=>`${c.id}: ${c.name} (${c.hex})`).join('\n');
+navigator.clipboard.writeText(text).then(()=>{
+showMessage('Palette copied to clipboard!','success');
+}).catch(()=>showMessage('Could not copy. Try again.','warning'));
+});
+}
+
+/* ——— EVENTS ——— */
+document.getElementById('generateBtn').addEventListener('click',generatePalette);
+document.getElementById('colorInput').addEventListener('input',e=>validateColor(e.target.value));
+
+// initialize
+validateColor(dominantColor);
+</script>
 </body>
 </html>
