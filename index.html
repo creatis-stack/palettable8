@@ -6,20 +6,59 @@
 <title>Palettable - Color Palette Generator</title>
 
 <style>
-/* (UI untouched except for picker — same as last version) */
-/* ... styles omitted for brevity — assume identical to previous response ... */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background-color:#f9fafb;line-height:1.5}
+.container{min-height:100vh;padding:1.5rem;max-width:48rem;margin:0 auto}
+.text-center{text-align:center}
+.mb-8{margin-bottom:2rem}.mb-6{margin-bottom:1.5rem}.mb-4{margin-bottom:1rem}.mb-2{margin-bottom:.5rem}
+.mt-4{margin-top:1rem}
+.card{background:#fff;padding:1.5rem;border-radius:.5rem;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-2{gap:.5rem}
+.input-container{position:relative;flex:1}
+.color-icon{position:absolute;left:.75rem;top:.75rem;width:1.25rem;height:1.25rem;border-radius:.25rem;border:1px solid #d1d5db;cursor:pointer}
+.input{width:100%;padding:.75rem 1rem .75rem 2.5rem;border:1px solid #d1d5db;border-radius:.5rem;font-size:1rem;outline:none;font-family:Monaco,Menlo,'Ubuntu Mono',monospace}
+.input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.input.error{border-color:#ef4444}
+.btn{padding:.75rem 1.5rem;border:none;border-radius:.5rem;font-weight:500;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:.5rem}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-primary{background:#3b82f6;color:#fff}.btn-primary:hover:not(:disabled){background:#2563eb}
+.btn-secondary{background:transparent;color:#6b7280;border:1px solid #d1d5db}.btn-secondary:hover{background:#f3f4f6;color:#374151}
+.btn-small{padding:.5rem 1rem;font-size:.875rem}
+.select{padding:.75rem 1rem;border:1px solid #d1d5db;border-radius:.5rem;background:#fff;outline:none;width:100%}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.palette-container{background:#fff;border-radius:.5rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.palette-colors{display:flex;height:120px}
+.palette-color{flex:1;position:relative;cursor:pointer;transition:.2s}
+.palette-color:hover{transform:scale(1.05);z-index:10}
+.lock-icon{position:absolute;top:.5rem;right:.5rem;width:1rem;height:1rem;background:rgba(0,0,0,.8);color:#fff;border-radius:.25rem;display:flex;align-items:center;justify-content:center;font-size:.75rem}
+.color-hex{position:absolute;bottom:.5rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:.25rem .5rem;border-radius:.25rem;font-size:.75rem;font-family:Monaco,Menlo,'Ubuntu Mono',monospace;opacity:0;transition:opacity .2s}
+.palette-color:hover .color-hex{opacity:1}
+.palette-info{padding:1rem}
+.palette-name{font-weight:600;color:#111827;margin-bottom:.5rem}
+.palette-description{color:#6b7280;font-size:.875rem;margin-bottom:1rem}
+.palette-actions{display:flex;gap:.5rem}
+.hidden{display:none!important}
+.message-box{margin-top:1rem;padding:.75rem 1rem;border-radius:.5rem;font-size:.875rem;display:flex;align-items:center;gap:.5rem}
+.message-success{background:#f0fdf4;color:#166534}
+.icon{width:1rem;height:1rem}
+.error-text{color:#ef4444;font-size:.875rem;margin-top:.25rem}
+.color-info{background:#f8fafc;border:1px solid #e2e8f0;border-radius:.375rem;padding:.75rem;margin-top:.5rem;font-size:.875rem;color:#475569}
+.color-info-name{font-weight:600;color:#1e293b}
+.color-info-details{display:flex;gap:1rem;margin-top:.25rem}
+.color-info-hex{font-family:Monaco,Menlo,'Ubuntu Mono',monospace;background:#f1f5f9;padding:.125rem .375rem;border-radius:.25rem}
+.color-picker{position:absolute;top:130%;left:0;background:white;border:1px solid #e5e7eb;border-radius:.5rem;padding:.5rem;box-shadow:0 10px 20px rgba(0,0,0,.08);display:grid;grid-template-columns:repeat(6,1fr);gap:.5rem;z-index:50}
+.color-swatch{width:28px;height:28px;border-radius:.25rem;border:1px solid #d1d5db;cursor:pointer}
+@media(max-width:768px){.container{padding:1rem}.card{padding:1rem}.form-row{grid-template-columns:1fr}.color-info-details{flex-direction:column;gap:.5rem}}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<!-- header -->
 <div class="text-center mb-8">
 <img src="logo_palettable.png" width="150" />
 </div>
 
-<!-- card -->
 <div class="card mb-6">
 <h3 class="font-semibold text-gray-900 mb-4">Palette Builder</h3>
 
@@ -28,11 +67,8 @@
 <div class="mb-4">
 <div class="flex gap-2">
 <div class="input-container">
-
 <div id="colorIcon" class="color-icon"></div>
-
 <input id="colorInput" class="input" value="3" />
-
 <div id="colorPicker" class="color-picker hidden"></div>
 </div>
 </div>
@@ -84,7 +120,6 @@ Use colors 1–32 (Tap the swatch to choose visually)
 <h3 class="font-semibold">Generated Palette</h3>
 <div class="text-sm text-gray-600">Click colors to lock/unlock</div>
 </div>
-
 <div id="paletteContainer" class="palette-container"></div>
 </div>
 
@@ -95,113 +130,113 @@ Use colors 1–32 (Tap the swatch to choose visually)
 </div>
 
 <script>
-/* data (unchanged) */
-const colorDatabase = [
-/* — 1 to 32 entries — same as previous version — */
+const colorDatabase=[
 {id:1,name:'Lilac Taupe',hex:'#8A7EA6',family:'cool',feeling:['calm','minimal']},
 {id:2,name:'Pale Champagne',hex:'#E6E2B2',family:'warm',feeling:['calm','minimal']},
 {id:3,name:'Petal Pink',hex:'#FCF1EF',family:'warm',feeling:['calm','minimal']},
-/* ... continue same list to 32 ... */
+{id:4,name:'Creamy Salmon',hex:'#ECC7BA',family:'warm',feeling:['calm','playful']},
+{id:5,name:'Dark Sage',hex:'#7C7C4A',family:'warm',feeling:['earthy','calm']},
+{id:6,name:'Pale Maroon',hex:'#A05B5F',family:'warm',feeling:['earthy','bold']},
+{id:7,name:'Muted Khaki',hex:'#B3A569',family:'warm',feeling:['earthy','calm']},
+{id:8,name:'Golden Rod',hex:'#C2B356',family:'warm',feeling:['earthy','playful']},
+{id:9,name:'Creamy Lemon',hex:'#FEE1A1',family:'warm',feeling:['playful','calm']},
+{id:10,name:'Black',hex:'#000000',family:'neutral',feeling:['bold','minimal']},
+{id:11,name:'Burgundy',hex:'#A24A63',family:'warm',feeling:['bold','earthy']},
+{id:12,name:'Rose Quartz',hex:'#C3788D',family:'warm',feeling:['calm','playful']},
+{id:13,name:'Olive Green',hex:'#5F5A3C',family:'warm',feeling:['earthy','calm']},
+{id:14,name:'Misty Teal',hex:'#5E7875',family:'cool',feeling:['calm','minimal']},
+{id:15,name:'Dark Maroon',hex:'#8B3A3A',family:'warm',feeling:['bold','earthy']},
+{id:16,name:'Olive Brown',hex:'#7C774D',family:'warm',feeling:['earthy','calm']},
+{id:17,name:'Slate Gray',hex:'#7D8985',family:'neutral',feeling:['minimal','calm']},
+{id:18,name:'Chocolate Brown',hex:'#6F625A',family:'warm',feeling:['earthy','bold']},
+{id:19,name:'Pastel Teal',hex:'#9EBAB5',family:'cool',feeling:['calm','minimal']},
+{id:20,name:'Mint Ice',hex:'#C9D6CF',family:'cool',feeling:['calm','minimal']},
+{id:21,name:'Soft Stone',hex:'#96928C',family:'neutral',feeling:['minimal','calm']},
+{id:22,name:'Earth Brown',hex:'#877E72',family:'warm',feeling:['earthy','minimal']},
+{id:23,name:'Harbor Mist',hex:'#A3B2BB',family:'cool',feeling:['calm','minimal']},
+{id:24,name:'Midnight Slate',hex:'#364A57',family:'cool',feeling:['bold','minimal']},
+{id:25,name:'Dusty Coral',hex:'#CD7C73',family:'warm',feeling:['playful','calm']},
+{id:26,name:'Sage Green',hex:'#839D77',family:'warm',feeling:['earthy','calm']},
+{id:27,name:'Mocha Mousse',hex:'#A47B67',family:'warm',feeling:['earthy','calm']},
+{id:28,name:'Forest Fern',hex:'#52684B',family:'warm',feeling:['earthy','bold']},
+{id:29,name:'Brick Red',hex:'#7F3336',family:'warm',feeling:['bold','earthy']},
+{id:30,name:'Lemongrass',hex:'#D6CF8D',family:'warm',feeling:['playful','earthy']},
+{id:31,name:'Winter Pear',hex:'#899064',family:'warm',feeling:['earthy','calm']},
 {id:32,name:'Tomato Cream',hex:'#B15533',family:'warm',feeling:['bold','earthy']}
 ];
 
-/* state */
-let lockedColors = new Set();
-let currentPalette = [];
-let dominantColor = 3;
-let autoLockedColor = null;   // <<< new — tracks which color we auto-locked
+let lockedColors=new Set();
+let currentPalette=[];
+let dominantColor=3;
+let autoLockedColor=null;
 
-/* helpers */
-const el = id => document.getElementById(id);
+const el=id=>document.getElementById(id);
 
 function showMessage(t){
-el('messageText').textContent = t;
+el('messageText').textContent=t;
 el('messageBox').classList.remove('hidden');
 setTimeout(()=>el('messageBox').classList.add('hidden'),2000);
 }
 
-function validateColor(id) {
-const c = colorDatabase.find(c => c.id == id);
-if (!c) {
-el('colorError').classList.remove('hidden');
-return false;
-}
-
+function validateColor(id){
+const c=colorDatabase.find(c=>c.id==id);
+if(!c){el('colorError').classList.remove('hidden');return false;}
 el('colorError').classList.add('hidden');
-dominantColor = c.id;
-el('colorIcon').style.background = c.hex;
-el('colorInfoName').textContent = c.name;
-el('colorInfoHex').textContent = c.hex;
-el('colorInfoTemp').textContent = c.family;
 
-/* -------- AUTO-LOCK BEHAVIOR (fixed) --------
-   remove old autolock, apply new autolock   */
-if (autoLockedColor !== null && lockedColors.has(autoLockedColor)) {
+dominantColor=c.id;
+el('colorIcon').style.background=c.hex;
+el('colorInfoName').textContent=c.name;
+el('colorInfoHex').textContent=c.hex;
+el('colorInfoTemp').textContent=c.family;
+
+/* auto-lock switch */
+if(autoLockedColor!==null && lockedColors.has(autoLockedColor)){
 lockedColors.delete(autoLockedColor);
 }
-
 lockedColors.add(dominantColor);
-autoLockedColor = dominantColor;
+autoLockedColor=dominantColor;
 
 return true;
 }
 
-/* picker setup */
+/* picker */
 (function buildPicker(){
-const box = el('colorPicker');
-box.innerHTML = colorDatabase.map(c =>
-`<div class="color-swatch" data-id="${c.id}" style="background:${c.hex}"></div>`
-).join('');
-
-box.addEventListener('click', e => {
-if (!e.target.dataset.id) return;
-el('colorInput').value = e.target.dataset.id;
+const box=el('colorPicker');
+box.innerHTML=colorDatabase.map(c=>`<div class="color-swatch" data-id="${c.id}" style="background:${c.hex}"></div>`).join('');
+box.addEventListener('click',e=>{
+if(!e.target.dataset.id) return;
+el('colorInput').value=e.target.dataset.id;
 validateColor(e.target.dataset.id);
 box.classList.add('hidden');
 });
 })();
 
-el('colorIcon').addEventListener('click', () =>
-el('colorPicker').classList.toggle('hidden')
-);
+el('colorIcon').addEventListener('click',()=>el('colorPicker').classList.toggle('hidden'));
 
-/* palette engine */
 function shuffle(a){const s=[...a];for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]];}return s;}
 
-function createPalette() {
-const size = parseInt(el('paletteSize').value);
-const feeling = el('feelingSelect').value;
-const dom = colorDatabase.find(c => c.id === dominantColor);
+function createPalette(){
+const size=parseInt(el('paletteSize').value);
+const feeling=el('feelingSelect').value;
+const dom=colorDatabase.find(c=>c.id===dominantColor);
 
-let palette = [...Array.from(lockedColors)].map(id =>
-colorDatabase.find(c => c.id === id)
-);
+let palette=[...Array.from(lockedColors)].map(id=>colorDatabase.find(c=>c.id===id));
+if(!lockedColors.has(dom.id)) palette.unshift(dom);
 
-/* make sure dominant is present */
-if (!lockedColors.has(dom.id)) palette.unshift(dom);
-
-let available = colorDatabase.filter(c =>
-!palette.some(p => p.id === c.id)
-);
-
+let available=colorDatabase.filter(c=>!palette.some(p=>p.id===c.id));
 shuffle(available).forEach(c=>{
-if (c.feeling?.includes(feeling) && palette.length < size)
-palette.push(c);
+if(c.feeling?.includes(feeling)&&palette.length<size) palette.push(c);
 });
-
-available.forEach(c=>{
-if (palette.length < size) palette.push(c);
-});
-
+available.forEach(c=>{if(palette.length<size) palette.push(c);});
 return palette.slice(0,size);
 }
 
 function display(){
-currentPalette = createPalette();
+currentPalette=createPalette();
 
-el('paletteContainer').innerHTML = `
+el('paletteContainer').innerHTML=`
 <div class="palette-colors">
-${currentPalette.map(c => `
+${currentPalette.map(c=>`
 <div class="palette-color ${lockedColors.has(c.id)?'locked':''}" data-id="${c.id}" style="background:${c.hex}">
 ${lockedColors.has(c.id)?'<div class="lock-icon">🔒</div>':''}
 <div class="color-hex">#${c.id}</div>
@@ -216,36 +251,23 @@ ${lockedColors.has(c.id)?'<div class="lock-icon">🔒</div>':''}
 </div>
 </div>`;
 
-/* lock toggle */
 document.querySelectorAll('.palette-color').forEach(elm=>{
-elm.onclick = ()=>{
-const id = parseInt(elm.dataset.id);
-
-/* if user unlocks a previously auto-locked dominant,
-   respect their choice */
-if (lockedColors.has(id)) {
+elm.onclick=()=>{
+const id=parseInt(elm.dataset.id);
+if(lockedColors.has(id)){
 lockedColors.delete(id);
-if (autoLockedColor === id) autoLockedColor = null;
-} else {
-lockedColors.add(id);
-}
-
+if(autoLockedColor===id) autoLockedColor=null;
+}else lockedColors.add(id);
 display();
 };
 });
 
-el('regen').onclick = display;
-
-el('save').onclick = ()=>{
-navigator.clipboard
-.writeText(currentPalette.map(c=>c.hex).join(', '))
-.then(()=>showMessage('Copied palette'));
-};
+el('regen').onclick=display;
+el('save').onclick=()=>navigator.clipboard.writeText(currentPalette.map(c=>c.hex).join(', ')).then(()=>showMessage('Copied palette'));
 }
 
-/* events */
-el('generateBtn').onclick = ()=>{
-if (validateColor(dominantColor)) {
+el('generateBtn').onclick=()=>{
+if(validateColor(dominantColor)){
 display();
 el('resultsSection').classList.remove('hidden');
 }
