@@ -267,7 +267,7 @@ el('regen').onclick=display;
 el('save').onclick=()=>{
 navigator.clipboard
 .writeText(currentPalette.map(c=>c.id).join(', '))
-.then(()=>showMessage('Copied palette numbers'));
+.then(()=>showMessage('Copied! Share this with the Creatis Team on WhatsApp.');
 };
 }
 
