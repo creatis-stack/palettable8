@@ -130,7 +130,7 @@ Use colors 1–32 (Tap the swatch to choose visually)
 </div>
 
 <script>
-const colorDatabase=[
+const colorDatabase=[ /* full list, unchanged */
 {id:1,name:'Lilac Taupe',hex:'#8A7EA6',family:'cool',feeling:['calm','minimal']},
 {id:2,name:'Pale Champagne',hex:'#E6E2B2',family:'warm',feeling:['calm','minimal']},
 {id:3,name:'Petal Pink',hex:'#FCF1EF',family:'warm',feeling:['calm','minimal']},
@@ -189,7 +189,7 @@ el('colorInfoName').textContent=c.name;
 el('colorInfoHex').textContent=c.hex;
 el('colorInfoTemp').textContent=c.family;
 
-/* auto-lock switch */
+/* auto-lock logic */
 if(autoLockedColor!==null && lockedColors.has(autoLockedColor)){
 lockedColors.delete(autoLockedColor);
 }
@@ -199,7 +199,7 @@ autoLockedColor=dominantColor;
 return true;
 }
 
-/* picker */
+/* swatch picker */
 (function buildPicker(){
 const box=el('colorPicker');
 box.innerHTML=colorDatabase.map(c=>`<div class="color-swatch" data-id="${c.id}" style="background:${c.hex}"></div>`).join('');
@@ -210,7 +210,6 @@ validateColor(e.target.dataset.id);
 box.classList.add('hidden');
 });
 })();
-
 el('colorIcon').addEventListener('click',()=>el('colorPicker').classList.toggle('hidden'));
 
 function shuffle(a){const s=[...a];for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]];}return s;}
@@ -263,7 +262,13 @@ display();
 });
 
 el('regen').onclick=display;
-el('save').onclick=()=>navigator.clipboard.writeText(currentPalette.map(c=>c.hex).join(', ')).then(()=>showMessage('Copied palette'));
+
+/* COPY ONLY COLOR NUMBERS */
+el('save').onclick=()=>{
+navigator.clipboard
+.writeText(currentPalette.map(c=>c.id).join(', '))
+.then(()=>showMessage('Copied palette numbers'));
+};
 }
 
 el('generateBtn').onclick=()=>{
