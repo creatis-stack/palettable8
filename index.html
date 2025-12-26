@@ -130,7 +130,7 @@ Use colors 1–32 (Tap the swatch to choose visually)
 </div>
 
 <script>
-const colorDatabase=[ /* full list, unchanged */
+const colorDatabase=[
 {id:1,name:'Lilac Taupe',hex:'#8A7EA6',family:'cool',feeling:['calm','minimal']},
 {id:2,name:'Pale Champagne',hex:'#E6E2B2',family:'warm',feeling:['calm','minimal']},
 {id:3,name:'Petal Pink',hex:'#FCF1EF',family:'warm',feeling:['calm','minimal']},
@@ -175,7 +175,7 @@ const el=id=>document.getElementById(id);
 function showMessage(t){
 el('messageText').textContent=t;
 el('messageBox').classList.remove('hidden');
-setTimeout(()=>el('messageBox').classList.add('hidden'),2000);
+setTimeout(()=>el('messageBox').classList.add('hidden'),2500);
 }
 
 function validateColor(id){
@@ -189,7 +189,7 @@ el('colorInfoName').textContent=c.name;
 el('colorInfoHex').textContent=c.hex;
 el('colorInfoTemp').textContent=c.family;
 
-/* auto-lock logic */
+/* auto-lock swap */
 if(autoLockedColor!==null && lockedColors.has(autoLockedColor)){
 lockedColors.delete(autoLockedColor);
 }
@@ -202,7 +202,9 @@ return true;
 /* swatch picker */
 (function buildPicker(){
 const box=el('colorPicker');
-box.innerHTML=colorDatabase.map(c=>`<div class="color-swatch" data-id="${c.id}" style="background:${c.hex}"></div>`).join('');
+box.innerHTML=colorDatabase
+.map(c=>`<div class="color-swatch" data-id="${c.id}" style="background:${c.hex}"></div>`)
+.join('');
 box.addEventListener('click',e=>{
 if(!e.target.dataset.id) return;
 el('colorInput').value=e.target.dataset.id;
@@ -223,10 +225,12 @@ let palette=[...Array.from(lockedColors)].map(id=>colorDatabase.find(c=>c.id===i
 if(!lockedColors.has(dom.id)) palette.unshift(dom);
 
 let available=colorDatabase.filter(c=>!palette.some(p=>p.id===c.id));
+
 shuffle(available).forEach(c=>{
 if(c.feeling?.includes(feeling)&&palette.length<size) palette.push(c);
 });
 available.forEach(c=>{if(palette.length<size) palette.push(c);});
+
 return palette.slice(0,size);
 }
 
@@ -263,11 +267,16 @@ display();
 
 el('regen').onclick=display;
 
-/* COPY ONLY COLOR NUMBERS */
+/* SAVE → copy numbers + open WhatsApp */
 el('save').onclick=()=>{
-navigator.clipboard
-.writeText(currentPalette.map(c=>c.id).join(', '))
-.then(()=>showMessage('Copied! Share this with the Creatis Team on WhatsApp.');
+const ids=currentPalette.map(c=>c.id).join(', ');
+navigator.clipboard.writeText(ids).then(()=>{
+showMessage('Copied! Share this with the Creatis Team on WhatsApp.');
+const wa=`https://wa.me/919828601666?text=${encodeURIComponent(
+'Hi Creatis — here is my palette: ' + ids
+)}`;
+window.open(wa,'_blank');
+});
 };
 }
 
