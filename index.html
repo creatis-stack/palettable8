@@ -12,7 +12,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .text-center{text-align:center}
 .mb-8{margin-bottom:2rem}.mb-6{margin-bottom:1.5rem}.mb-4{margin-bottom:1rem}.mb-2{margin-bottom:.5rem}
 .mt-4{margin-top:1rem}
-.card{background:#fff;padding:1.5rem;border-radius:.5rem;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.card{background:#fff;padding:1.5rem;border-radius:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.1)}
 .flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-2{gap:.5rem}
 
 .input-container{position:relative;flex:1}
@@ -27,7 +27,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 .select{padding:.75rem 1rem;border:1px solid #d1d5db;border-radius:.5rem}
 
-.palette-container{background:#fff;border-radius:.5rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.palette-container{background:#fff;border-radius:.75rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1)}
 .palette-colors{display:flex;height:120px}
 .palette-color{flex:1;position:relative;cursor:pointer}
 .lock-icon{position:absolute;top:.5rem;right:.5rem;background:#000;color:#fff;font-size:.7rem;padding:.15rem .35rem;border-radius:.25rem}
@@ -39,10 +39,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 .hidden{display:none}
 
-.color-picker{position:absolute;top:130%;left:0;background:#fff;border:1px solid #e5e7eb;border-radius:.5rem;padding:.5rem;display:grid;grid-template-columns:repeat(6,1fr);gap:.5rem;z-index:20}
-.color-swatch{width:26px;height:26px;border-radius:.25rem;border:1px solid #d1d5db;cursor:pointer}
+.color-picker{
+  position:absolute;
+  top:130%;
+  left:0;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:.5rem;
+  padding:.5rem;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:.5rem;
+  z-index:50;
+}
+.color-swatch{
+  width:26px;
+  height:26px;
+  border-radius:.25rem;
+  border:1px solid #d1d5db;
+  cursor:pointer;
+}
 
-.footer-note{font-size:.8rem;color:#6b7280;margin-top:1.5rem;text-align:center}
+.footer-note{
+  font-size:.8rem;
+  color:#6b7280;
+  margin-top:1.5rem;
+  text-align:center;
+}
 </style>
 </head>
 
@@ -73,6 +96,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <option value="3">3 colors</option>
 <option value="4">4 colors</option>
 <option value="5">5 colors</option>
+<option value="6">6 colors</option>
 </select>
 
 <select id="feelingSelect" class="select">
@@ -106,178 +130,195 @@ Colors may vary depending on the fabric used and can appear different from what 
 
 <script>
 const colorDatabase = [
-  { id: 1, name: 'Lilac Taupe', hex: '#8A7EA6', feeling: ['calm','minimal'] },
-  { id: 2, name: 'Pale Champagne', hex: '#E6E2B2', feeling: ['calm','minimal'] },
-  { id: 3, name: 'Petal Pink', hex: '#FCF1EF', feeling: ['calm','minimal'] },
-  { id: 4, name: 'Creamy Salmon', hex: '#ECC7BA', feeling: ['calm','playful'] },
-  { id: 5, name: 'Dark Sage', hex: '#7C7C4A', feeling: ['earthy','calm'] },
-  { id: 6, name: 'Pale Maroon', hex: '#A05B5F', feeling: ['earthy','bold'] },
-  { id: 7, name: 'Muted Khaki', hex: '#B3A569', feeling: ['earthy','calm'] },
-  { id: 8, name: 'Golden Rod', hex: '#C2B356', feeling: ['earthy','playful'] },
-  { id: 9, name: 'Creamy Lemon', hex: '#FEE1A1', feeling: ['playful','calm'] },
-  { id: 10, name: 'Black', hex: '#000000', feeling: ['bold','minimal'] },
-  { id: 11, name: 'Burgundy', hex: '#A24A63', feeling: ['bold','earthy'] },
-  { id: 12, name: 'Rose Quartz', hex: '#C3788D', feeling: ['calm','playful'] },
-  { id: 13, name: 'Olive Green', hex: '#5F5A3C', feeling: ['earthy','calm'] },
-  { id: 14, name: 'Misty Teal', hex: '#5E7875', feeling: ['calm','minimal'] },
-  { id: 15, name: 'Dark Maroon', hex: '#8B3A3A', feeling: ['bold','earthy'] },
-  { id: 16, name: 'Olive Brown', hex: '#7C774D', feeling: ['earthy','calm'] },
-  { id: 17, name: 'Slate Gray', hex: '#7D8985', feeling: ['minimal','calm'] },
-  { id: 18, name: 'Chocolate Brown', hex: '#6F625A', feeling: ['earthy','bold'] },
-  { id: 19, name: 'Pastel Teal', hex: '#9EBAB5', feeling: ['calm','minimal'] },
-  { id: 20, name: 'Mint Ice', hex: '#C9D6CF', feeling: ['calm','minimal'] },
-  { id: 21, name: 'Soft Stone', hex: '#96928C', feeling: ['minimal','calm'] },
-  { id: 22, name: 'Earth Brown', hex: '#877E72', feeling: ['earthy','minimal'] },
-  { id: 23, name: 'Harbor Mist', hex: '#A3B2BB', feeling: ['calm','minimal'] },
-  { id: 24, name: 'Midnight Slate', hex: '#364A57', feeling: ['bold','minimal'] },
-  { id: 25, name: 'Dusty Coral', hex: '#CD7C73', feeling: ['playful','calm'] },
-  { id: 26, name: 'Sage Green', hex: '#839D77', feeling: ['earthy','calm'] },
-  { id: 27, name: 'Mocha Mousse', hex: '#A47B67', feeling: ['earthy','calm'] },
-  { id: 28, name: 'Forest Fern', hex: '#52684B', feeling: ['earthy','bold'] },
-  { id: 29, name: 'Brick Red', hex: '#7F3336', feeling: ['bold','earthy'] },
-  { id: 30, name: 'Lemongrass', hex: '#D6CF8D', feeling: ['playful','earthy'] },
-  { id: 31, name: 'Winter Pear', hex: '#899064', feeling: ['earthy','calm'] },
-  { id: 32, name: 'Tomato Cream', hex: '#B15533', feeling: ['bold','earthy'] },
-
-  /* added colors */
-  { id: 33, name: 'Blue Current', hex: '#00CFFF', feeling: ['playful','bold'] },
-  { id: 34, name: 'Soft Signal Pink', hex: '#FF4FA3', feeling: ['playful','bold'] },
-  { id: 35, name: 'Electric Leaf', hex: '#CCFF00', feeling: ['playful','earthy'] },
-  { id: 36, name: 'Solar Yellow', hex: '#FFF200', feeling: ['playful','minimal'] }
+  {id:1,name:'Lilac Taupe',hex:'#8A7EA6',feeling:['calm','minimal']},
+  {id:2,name:'Pale Champagne',hex:'#E6E2B2',feeling:['calm','minimal']},
+  {id:3,name:'Petal Pink',hex:'#FCF1EF',feeling:['calm','minimal']},
+  {id:4,name:'Creamy Salmon',hex:'#ECC7BA',feeling:['calm','playful']},
+  {id:5,name:'Dark Sage',hex:'#7C7C4A',feeling:['earthy','calm']},
+  {id:6,name:'Pale Maroon',hex:'#A05B5F',feeling:['earthy','bold']},
+  {id:7,name:'Muted Khaki',hex:'#B3A569',feeling:['earthy','calm']},
+  {id:8,name:'Golden Rod',hex:'#C2B356',feeling:['earthy','playful']},
+  {id:9,name:'Creamy Lemon',hex:'#FEE1A1',feeling:['playful','calm']},
+  {id:10,name:'Black',hex:'#000000',feeling:['bold','minimal']},
+  {id:11,name:'Burgundy',hex:'#A24A63',feeling:['bold','earthy']},
+  {id:12,name:'Rose Quartz',hex:'#C3788D',feeling:['calm','playful']},
+  {id:13,name:'Olive Green',hex:'#5F5A3C',feeling:['earthy','calm']},
+  {id:14,name:'Misty Teal',hex:'#5E7875',feeling:['calm','minimal']},
+  {id:15,name:'Dark Maroon',hex:'#8B3A3A',feeling:['bold','earthy']},
+  {id:16,name:'Olive Brown',hex:'#7C774D',feeling:['earthy','calm']},
+  {id:17,name:'Slate Gray',hex:'#7D8985',feeling:['minimal','calm']},
+  {id:18,name:'Chocolate Brown',hex:'#6F625A',feeling:['earthy','bold']},
+  {id:19,name:'Pastel Teal',hex:'#9EBAB5',feeling:['calm','minimal']},
+  {id:20,name:'Mint Ice',hex:'#C9D6CF',feeling:['calm','minimal']},
+  {id:21,name:'Soft Stone',hex:'#96928C',feeling:['minimal','calm']},
+  {id:22,name:'Earth Brown',hex:'#877E72',feeling:['earthy','minimal']},
+  {id:23,name:'Harbor Mist',hex:'#A3B2BB',feeling:['calm','minimal']},
+  {id:24,name:'Midnight Slate',hex:'#364A57',feeling:['bold','minimal']},
+  {id:25,name:'Dusty Coral',hex:'#CD7C73',feeling:['playful','calm']},
+  {id:26,name:'Sage Green',hex:'#839D77',feeling:['earthy','calm']},
+  {id:27,name:'Mocha Mousse',hex:'#A47B67',feeling:['earthy','calm']},
+  {id:28,name:'Forest Fern',hex:'#52684B',feeling:['earthy','bold']},
+  {id:29,name:'Brick Red',hex:'#7F3336',feeling:['bold','earthy']},
+  {id:30,name:'Lemongrass',hex:'#D6CF8D',feeling:['playful','earthy']},
+  {id:31,name:'Winter Pear',hex:'#899064',feeling:['earthy','calm']},
+  {id:32,name:'Tomato Cream',hex:'#B15533',feeling:['bold','earthy']},
+  {id:33,name:'Blue Current',hex:'#00CFFF',feeling:['playful','bold']},
+  {id:34,name:'Soft Signal Pink',hex:'#FF4FA3',feeling:['playful','bold']},
+  {id:35,name:'Electric Leaf',hex:'#CCFF00',feeling:['playful','earthy']},
+  {id:36,name:'Solar Yellow',hex:'#FFF200',feeling:['playful','minimal']}
 ];
 
-let dominantColor=3;
-let currentPalette=[];
-let lockedColors=new Set();
-let autoLockedColor=null;
+let dominantColor = 3;
+let currentPalette = [];
+let lockedColors = new Set();
+let autoLockedColor = null;
 
-const el=id=>document.getElementById(id);
+const el = id => document.getElementById(id);
 
-/* ---------- Color Picker ---------- */
+/* ---------- Picker ---------- */
 (function buildPicker(){
-el('colorPicker').innerHTML=colorDatabase.map(c=>
-`<div class="color-swatch" style="background:${c.hex}" data-id="${c.id}"></div>`
-).join('');
+  el('colorPicker').innerHTML = colorDatabase.map(c =>
+    `<div class="color-swatch" style="background:${c.hex}" data-id="${c.id}"></div>`
+  ).join('');
 
-el('colorPicker').onclick=e=>{
-if(!e.target.dataset.id) return;
-dominantColor=parseInt(e.target.dataset.id);
-el('colorInput').value=dominantColor;
-el('colorIcon').style.background=colorDatabase.find(c=>c.id===dominantColor).hex;
+  el('colorPicker').onclick = e => {
+    if (!e.target.dataset.id) return;
+    dominantColor = parseInt(e.target.dataset.id);
+    el('colorInput').value = dominantColor;
+    el('colorIcon').style.background =
+      colorDatabase.find(c => c.id === dominantColor).hex;
 
-if(autoLockedColor!==null) lockedColors.delete(autoLockedColor);
-lockedColors.add(dominantColor);
-autoLockedColor=dominantColor;
+    if (autoLockedColor !== null) lockedColors.delete(autoLockedColor);
+    lockedColors.add(dominantColor);
+    autoLockedColor = dominantColor;
 
-el('colorPicker').classList.add('hidden');
-};
+    el('colorPicker').classList.add('hidden');
+  };
 })();
 
-el('colorIcon').onclick=()=>el('colorPicker').classList.toggle('hidden');
+el('colorIcon').onclick = () => el('colorPicker').classList.toggle('hidden');
 
-/* ---------- Palette Logic ---------- */
+document.addEventListener('click', e => {
+  if (
+    !el('colorPicker').contains(e.target) &&
+    !el('colorIcon').contains(e.target)
+  ) el('colorPicker').classList.add('hidden');
+});
+
+/* ---------- Helpers ---------- */
 function shuffle(a){
-const s=[...a];
-for(let i=s.length-1;i>0;i--){
-const j=Math.floor(Math.random()*(i+1));
-[s[i],s[j]]=[s[j],s[i]];
-}
-return s;
+  const s=[...a];
+  for(let i=s.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [s[i],s[j]]=[s[j],s[i]];
+  }
+  return s;
 }
 
+/* ---------- Palette Generation ---------- */
 function createPalette(){
-const size=parseInt(el('paletteSize').value);
-const feeling=el('feelingSelect').value;
-const dom=colorDatabase.find(c=>c.id===dominantColor);
+  const size = parseInt(el('paletteSize').value);
+  const feeling = el('feelingSelect').value;
 
-lockedColors=new Set([dominantColor]);
-autoLockedColor=dominantColor;
+  const locked = [...lockedColors].map(id =>
+    colorDatabase.find(c => c.id === id)
+  );
 
-let palette=[dom];
-let available=colorDatabase.filter(c=>c.id!==dom.id);
+  const slots = size - locked.length;
 
-shuffle(available).forEach(c=>{
-if(palette.length<size && c.feeling.includes(feeling)) palette.push(c);
-});
-available.forEach(c=>{
-if(palette.length<size) palette.push(c);
-});
+  let available = colorDatabase.filter(c => !lockedColors.has(c.id));
+  let generated = [];
 
-return palette;
+  shuffle(available).forEach(c => {
+    if (generated.length < slots && c.feeling.includes(feeling)) {
+      generated.push(c);
+    }
+  });
+  available.forEach(c => {
+    if (generated.length < slots) generated.push(c);
+  });
+
+  return [...locked, ...generated].slice(0, size);
 }
 
 /* ---------- Render ---------- */
 function display(){
-const allLocked=currentPalette.every(c=>lockedColors.has(c.id));
-renderPalette(allLocked);
+  const allLocked = currentPalette.every(c => lockedColors.has(c.id));
+  renderPalette(allLocked);
 }
 
 function renderPalette(allLocked){
-el('paletteContainer').innerHTML=`
-<div class="palette-colors">
-${currentPalette.map(c=>`
-<div class="palette-color" data-id="${c.id}" style="background:${c.hex}">
-${lockedColors.has(c.id)?'<div class="lock-icon">🔒</div>':''}
-<div class="color-hex">#${c.id}</div>
-</div>`).join('')}
-</div>
+  el('paletteContainer').innerHTML = `
+    <div class="palette-colors">
+      ${currentPalette.map(c => `
+        <div class="palette-color" data-id="${c.id}" style="background:${c.hex}">
+          ${lockedColors.has(c.id)?'<div class="lock-icon">🔒</div>':''}
+          <div class="color-hex">#${c.id}</div>
+        </div>
+      `).join('')}
+    </div>
 
-<div class="palette-info">
-<div class="palette-meta">
-${lockedColors.size} of ${currentPalette.length} locked
-</div>
+    <div class="palette-info">
+      <div class="palette-meta">
+        ${lockedColors.size} of ${currentPalette.length} locked
+      </div>
 
-<div class="palette-actions">
-<button id="regen" class="btn btn-secondary"
-  ${allLocked?'disabled title="All colors are locked"':''}>
-  Regenerate
-</button>
-<button id="send" class="btn btn-primary">
-  Send to Creatis
-</button>
-</div>
-</div>
-`;
+      <div class="palette-actions">
+        <button id="regen" class="btn btn-secondary"
+          ${allLocked ? 'disabled title="All colors are locked"' : ''}>
+          Regenerate
+        </button>
+        <button id="send" class="btn btn-primary">
+          Send to Creatis
+        </button>
+      </div>
+    </div>
+  `;
 
-attachPaletteHandlers(allLocked);
+  attachHandlers(allLocked);
 }
 
-function attachPaletteHandlers(allLocked){
-document.querySelectorAll('.palette-color').forEach(elm=>{
-elm.onclick=()=>{
-const id=parseInt(elm.dataset.id);
-lockedColors.has(id)?lockedColors.delete(id):lockedColors.add(id);
-display();
-};
-});
+function attachHandlers(allLocked){
+  document.querySelectorAll('.palette-color').forEach(elm => {
+    elm.onclick = () => {
+      const id = parseInt(elm.dataset.id);
+      lockedColors.has(id) ? lockedColors.delete(id) : lockedColors.add(id);
+      display();
+    };
+  });
 
-el('regen').onclick=()=>{
-if(allLocked) return;
-currentPalette=createPalette();
-display();
-};
+  el('regen').onclick = () => {
+    if (allLocked) return;
+    currentPalette = createPalette();
+    display();
+  };
 
-el('send').onclick=()=>{
-const ids=currentPalette.map(c=>c.id).join(', ');
-navigator.clipboard.writeText(ids);
-window.open(
-`https://wa.me/919828601666?text=${encodeURIComponent(
-'Hi Creatis — here is my palette: '+ids
-)}`,
-'_blank'
-);
-};
+  el('send').onclick = () => {
+    const ids = currentPalette.map(c => c.id).join(', ');
+    navigator.clipboard.writeText(ids);
+    window.open(
+      `https://wa.me/919828601666?text=${encodeURIComponent(
+        'Hi Creatis — here is my palette: ' + ids
+      )}`,
+      '_blank'
+    );
+  };
 }
 
 /* ---------- Generate ---------- */
-el('generateBtn').onclick=()=>{
-currentPalette=createPalette();
-display();
-el('resultsSection').classList.remove('hidden');
+el('generateBtn').onclick = () => {
+  lockedColors.clear();
+  lockedColors.add(dominantColor);
+  autoLockedColor = dominantColor;
+
+  currentPalette = createPalette();
+  display();
+  el('resultsSection').classList.remove('hidden');
 };
 
 /* init */
-el('colorIcon').style.background=colorDatabase.find(c=>c.id===dominantColor).hex;
+el('colorIcon').style.background =
+  colorDatabase.find(c => c.id === dominantColor).hex;
 </script>
 </body>
 </html>
