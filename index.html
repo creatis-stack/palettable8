@@ -181,7 +181,7 @@ const el = id => document.getElementById(id);
     `<div class="color-swatch" style="background:${c.hex}" data-id="${c.id}"></div>`
   ).join('');
 
-  el('colorPicker').onclick = e => {
+  el('colorPicker').addEventListener('click', e => {
     if (!e.target.dataset.id) return;
     dominantColor = parseInt(e.target.dataset.id);
     el('colorInput').value = dominantColor;
@@ -193,16 +193,23 @@ const el = id => document.getElementById(id);
     autoLockedColor = dominantColor;
 
     el('colorPicker').classList.add('hidden');
-  };
+  });
 })();
 
-el('colorIcon').onclick = () => el('colorPicker').classList.toggle('hidden');
+/* explicit open only */
+el('colorIcon').addEventListener('click', e => {
+  e.stopPropagation();
+  el('colorPicker').classList.remove('hidden');
+});
 
+/* explicit close */
 document.addEventListener('click', e => {
   if (
     !el('colorPicker').contains(e.target) &&
     !el('colorIcon').contains(e.target)
-  ) el('colorPicker').classList.add('hidden');
+  ) {
+    el('colorPicker').classList.add('hidden');
+  }
 });
 
 /* ---------- Helpers ---------- */
