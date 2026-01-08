@@ -105,14 +105,45 @@ Colors may vary depending on the fabric used and can appear different from what 
 </div>
 
 <script>
-const colorDatabase=[
-{id:3,name:'Petal Pink',hex:'#FCF1EF',feeling:['calm','minimal']},
-{id:8,name:'Golden Rod',hex:'#C2B356',feeling:['earthy','playful']},
-{id:10,name:'Black',hex:'#000000',feeling:['bold','minimal']},
-{id:24,name:'Midnight Slate',hex:'#364A57',feeling:['bold','minimal']},
-{id:33,name:'Blue Current',hex:'#00CFFF',feeling:['playful','bold']},
-{id:35,name:'Electric Leaf',hex:'#CCFF00',feeling:['playful','earthy']},
-{id:36,name:'Solar Yellow',hex:'#FFF200',feeling:['playful','minimal']}
+const colorDatabase = [
+  { id: 1, name: 'Lilac Taupe', hex: '#8A7EA6', feeling: ['calm','minimal'] },
+  { id: 2, name: 'Pale Champagne', hex: '#E6E2B2', feeling: ['calm','minimal'] },
+  { id: 3, name: 'Petal Pink', hex: '#FCF1EF', feeling: ['calm','minimal'] },
+  { id: 4, name: 'Creamy Salmon', hex: '#ECC7BA', feeling: ['calm','playful'] },
+  { id: 5, name: 'Dark Sage', hex: '#7C7C4A', feeling: ['earthy','calm'] },
+  { id: 6, name: 'Pale Maroon', hex: '#A05B5F', feeling: ['earthy','bold'] },
+  { id: 7, name: 'Muted Khaki', hex: '#B3A569', feeling: ['earthy','calm'] },
+  { id: 8, name: 'Golden Rod', hex: '#C2B356', feeling: ['earthy','playful'] },
+  { id: 9, name: 'Creamy Lemon', hex: '#FEE1A1', feeling: ['playful','calm'] },
+  { id: 10, name: 'Black', hex: '#000000', feeling: ['bold','minimal'] },
+  { id: 11, name: 'Burgundy', hex: '#A24A63', feeling: ['bold','earthy'] },
+  { id: 12, name: 'Rose Quartz', hex: '#C3788D', feeling: ['calm','playful'] },
+  { id: 13, name: 'Olive Green', hex: '#5F5A3C', feeling: ['earthy','calm'] },
+  { id: 14, name: 'Misty Teal', hex: '#5E7875', feeling: ['calm','minimal'] },
+  { id: 15, name: 'Dark Maroon', hex: '#8B3A3A', feeling: ['bold','earthy'] },
+  { id: 16, name: 'Olive Brown', hex: '#7C774D', feeling: ['earthy','calm'] },
+  { id: 17, name: 'Slate Gray', hex: '#7D8985', feeling: ['minimal','calm'] },
+  { id: 18, name: 'Chocolate Brown', hex: '#6F625A', feeling: ['earthy','bold'] },
+  { id: 19, name: 'Pastel Teal', hex: '#9EBAB5', feeling: ['calm','minimal'] },
+  { id: 20, name: 'Mint Ice', hex: '#C9D6CF', feeling: ['calm','minimal'] },
+  { id: 21, name: 'Soft Stone', hex: '#96928C', feeling: ['minimal','calm'] },
+  { id: 22, name: 'Earth Brown', hex: '#877E72', feeling: ['earthy','minimal'] },
+  { id: 23, name: 'Harbor Mist', hex: '#A3B2BB', feeling: ['calm','minimal'] },
+  { id: 24, name: 'Midnight Slate', hex: '#364A57', feeling: ['bold','minimal'] },
+  { id: 25, name: 'Dusty Coral', hex: '#CD7C73', feeling: ['playful','calm'] },
+  { id: 26, name: 'Sage Green', hex: '#839D77', feeling: ['earthy','calm'] },
+  { id: 27, name: 'Mocha Mousse', hex: '#A47B67', feeling: ['earthy','calm'] },
+  { id: 28, name: 'Forest Fern', hex: '#52684B', feeling: ['earthy','bold'] },
+  { id: 29, name: 'Brick Red', hex: '#7F3336', feeling: ['bold','earthy'] },
+  { id: 30, name: 'Lemongrass', hex: '#D6CF8D', feeling: ['playful','earthy'] },
+  { id: 31, name: 'Winter Pear', hex: '#899064', feeling: ['earthy','calm'] },
+  { id: 32, name: 'Tomato Cream', hex: '#B15533', feeling: ['bold','earthy'] },
+
+  /* added colors */
+  { id: 33, name: 'Blue Current', hex: '#00CFFF', feeling: ['playful','bold'] },
+  { id: 34, name: 'Soft Signal Pink', hex: '#FF4FA3', feeling: ['playful','bold'] },
+  { id: 35, name: 'Electric Leaf', hex: '#CCFF00', feeling: ['playful','earthy'] },
+  { id: 36, name: 'Solar Yellow', hex: '#FFF200', feeling: ['playful','minimal'] }
 ];
 
 let dominantColor=3;
