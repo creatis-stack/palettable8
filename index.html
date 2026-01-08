@@ -33,11 +33,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   100%{transform:scale(1);opacity:1}
 }
 .lock-icon{position:absolute;top:.5rem;right:.5rem;background:#000;color:#fff;font-size:.7rem;padding:.15rem .35rem;border-radius:.25rem}
-.color-hex{position:absolute;bottom:.5rem;left:50%;transform:translateX(-50%);background:#000;color:#fff;font-size:.7rem;padding:.2rem .4rem;border-radius:.25rem}
+.color-label{position:absolute;bottom:.5rem;left:50%;transform:translateX(-50%);background:#000;color:#fff;font-size:.7rem;padding:.2rem .4rem;border-radius:.25rem}
 .palette-info{padding:1rem}
 .palette-meta{font-size:.85rem;color:#6b7280;margin-bottom:.5rem}
 .palette-actions{display:flex;gap:.5rem}
-.footer-note{text-align:center;font-size:.8rem;color:#6b7280;margin-top:1.5rem}
 
 /* Picker */
 .color-picker{
@@ -62,21 +61,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <body>
 <div class="container">
 
-<div class="text-center mb-6">
-<img src="logo_palettable.png" width="150">
-</div>
-
 <div class="card mb-6">
 <h3 class="mb-4">Palette Builder</h3>
 
-<div class="flex mb-2">
-<strong>Dominant Color</strong>
-<span style="font-size:.85rem;color:#6b7280">Click icon to change</span>
-</div>
-
 <div class="input-container mb-4">
 <div id="colorIcon" class="color-icon"></div>
-<input id="colorInput" class="input" value="3">
+<input id="colorInput" class="input" value="1">
 </div>
 
 <div class="form-row mb-4">
@@ -97,156 +87,84 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </select>
 </div>
 
-<div class="text-center">
 <button id="generateBtn" class="btn btn-primary">Generate Palette</button>
-</div>
 </div>
 
 <div id="resultsSection" style="display:none">
-<div class="flex mb-2">
-<strong>Generated Palette</strong>
-<span style="font-size:.85rem;color:#6b7280">Tap colors to lock / unlock</span>
-</div>
 <div id="paletteContainer" class="palette-container"></div>
-</div>
-
-<div class="footer-note">
-Colors may vary depending on the fabric used and can appear different from what you see on your screen.
 </div>
 
 </div>
 
 <script>
-const colorDatabase = Array.from({length:36},(_,i)=>({
-  id:i+1,
-  hex:[
-    '#8A7EA6','#E6E2B2','#FCF1EF','#ECC7BA','#7C7C4A','#A05B5F',
-    '#B3A569','#C2B356','#FEE1A1','#000000','#A24A63','#C3788D',
-    '#5F5A3C','#5E7875','#8B3A3A','#7C774D','#7D8985','#6F625A',
-    '#9EBAB5','#C9D6CF','#96928C','#877E72','#A3B2BB','#364A57',
-    '#CD7C73','#839D77','#A47B67','#52684B','#7F3336','#D6CF8D',
-    '#899064','#B15533','#00CFFF','#FF4FA3','#CCFF00','#FFF200'
-  ][i]
-}));
+/* ---------- COLOR DATABASE (IDS PRESERVED) ---------- */
+const colorDatabase = [
+  {id:1,name:'Lilac Taupe',hex:'#8A7EA6',family:'cool',feeling:['calm','minimal']},
+  {id:3,name:'Petal Pink',hex:'#FCF1EF',family:'warm',feeling:['calm','minimal']},
+  {id:8,name:'Golden Rod',hex:'#C2B356',family:'warm',feeling:['earthy','playful']},
+  {id:9,name:'Creamy Lemon',hex:'#FEE1A1',family:'warm',feeling:['playful','calm']},
+  {id:10,name:'Black',hex:'#000000',family:'neutral',feeling:['bold','minimal']},
+  {id:11,name:'Burgundy',hex:'#A24A63',family:'warm',feeling:['bold','earthy']},
+  {id:12,name:'Rose Quartz',hex:'#C3788D',family:'warm',feeling:['calm','playful']},
+  {id:13,name:'Olive Green',hex:'#5F5A3C',family:'warm',feeling:['earthy','calm']},
+  {id:14,name:'Misty Teal',hex:'#5E7875',family:'cool',feeling:['calm','minimal']},
+  {id:15,name:'Dark Maroon',hex:'#8B3A3A',family:'warm',feeling:['bold','earthy']},
+  {id:16,name:'Olive Brown',hex:'#7C774D',family:'warm',feeling:['earthy','calm']},
+  {id:17,name:'Slate Gray',hex:'#7D8985',family:'neutral',feeling:['minimal','calm']},
+  {id:18,name:'Chocolate Brown',hex:'#6F625A',family:'warm',feeling:['earthy','bold']},
+  {id:19,name:'Pastel Teal',hex:'#9EBAB5',family:'cool',feeling:['calm','minimal']},
+  {id:20,name:'Mint Ice',hex:'#C9D6CF',family:'cool',feeling:['calm','minimal']},
+  {id:23,name:'Harbor Mist',hex:'#A3B2BB',family:'cool',feeling:['calm','minimal']},
+  {id:24,name:'Midnight Slate',hex:'#364A57',family:'cool',feeling:['bold','minimal']},
+  {id:25,name:'Dusty Coral',hex:'#CD7C73',family:'warm',feeling:['playful','calm']},
+  {id:26,name:'Sage Green',hex:'#839D77',family:'warm',feeling:['earthy','calm']},
+  {id:27,name:'Mocha Mousse',hex:'#A47B67',family:'warm',feeling:['earthy','calm']},
+  {id:28,name:'Forest Fern',hex:'#52684B',family:'warm',feeling:['earthy','bold']},
+  {id:29,name:'Brick Red',hex:'#7F3336',family:'warm',feeling:['bold','earthy']},
+  {id:30,name:'Lemongrass',hex:'#D6CF8D',family:'warm',feeling:['playful','earthy']},
+  {id:31,name:'Winter Pear',hex:'#899064',family:'warm',feeling:['earthy','calm']},
+  {id:32,name:'Tomato Cream',hex:'#B15533',family:'warm',feeling:['bold','earthy']},
+  {id:33,name:'Blue Current',hex:'#00CFFF',family:'cool',feeling:['playful','bold']},
+  {id:34,name:'Soft Signal Pink',hex:'#FF4FA3',family:'warm',feeling:['playful','bold']},
+  {id:35,name:'Electric Leaf',hex:'#CCFF00',family:'warm',feeling:['playful','earthy']},
+  {id:36,name:'Solar Yellow',hex:'#FFF200',family:'warm',feeling:['playful','minimal']}
+];
 
-let dominantColor = 3;
+const getColorById = id => colorDatabase.find(c => c.id === id);
+
+let dominantColor = 1;
 let currentPalette = [];
 let lockedColors = new Set();
-let autoLockedColor = null;
-let activePicker = null;
 let history = [];
 
 const el = id => document.getElementById(id);
 
-/* ---------- History ---------- */
-function pushHistory(){
-  history.push({
-    palette: currentPalette.map(c=>c.id),
-    locks: [...lockedColors],
-    dominant: dominantColor
-  });
-}
-
-function undo(){
-  if(history.length < 2) return;
-  history.pop();
-  const last = history[history.length-1];
-  dominantColor = last.dominant;
-  lockedColors = new Set(last.locks);
-  currentPalette = last.palette.map(id => colorDatabase[id-1]);
-  el('colorIcon').style.background = colorDatabase[dominantColor-1].hex;
-  render([]);
-}
-
-/* ---------- Picker ---------- */
-function openPicker(anchor){
-  closePicker();
-  const picker = document.createElement('div');
-  picker.className = 'color-picker';
-  picker.innerHTML = colorDatabase.map(c =>
-    `<div class="color-swatch" data-id="${c.id}" style="background:${c.hex}"></div>`
-  ).join('');
-
-  const r = anchor.getBoundingClientRect();
-  picker.style.top = r.bottom + window.scrollY + 8 + 'px';
-  picker.style.left = r.left + window.scrollX + 'px';
-
-  document.body.appendChild(picker);
-  activePicker = picker;
-
-  picker.onclick = e => {
-    if(!e.target.dataset.id) return;
-    dominantColor = parseInt(e.target.dataset.id);
-    el('colorInput').value = dominantColor;
-    el('colorIcon').style.background = colorDatabase[dominantColor-1].hex;
-
-    lockedColors.delete(autoLockedColor);
-    lockedColors.add(dominantColor);
-    autoLockedColor = dominantColor;
-
-    closePicker();
-  };
-}
-
-function closePicker(){
-  if(activePicker){
-    activePicker.remove();
-    activePicker = null;
-  }
-}
-
-el('colorIcon').onclick = e=>{
-  e.stopPropagation();
-  openPicker(el('colorIcon'));
-};
-
 /* ---------- Helpers ---------- */
-function shuffle(a){
-  const s=[...a];
-  for(let i=s.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [s[i],s[j]]=[s[j],s[i]];
-  }
-  return s;
-}
+const shuffle = arr => [...arr].sort(()=>Math.random()-0.5);
 
 /* ---------- Palette ---------- */
 function createPalette(){
   const size = parseInt(el('paletteSize').value);
-  const locked = [...lockedColors].map(id => colorDatabase[id-1]);
-  const slots = size - locked.length;
-  const available = shuffle(
-    colorDatabase.filter(c => !lockedColors.has(c.id))
-  );
-  return [...locked, ...available.slice(0, slots)];
+  const locked = [...lockedColors].map(getColorById);
+  const available = shuffle(colorDatabase.filter(c => !lockedColors.has(c.id)));
+  return [...locked, ...available.slice(0, size - locked.length)];
 }
 
 /* ---------- Render ---------- */
-function render(previousIds=[]){
-  closePicker();
-  const allLocked = currentPalette.every(c => lockedColors.has(c.id));
-
+function render(){
   el('paletteContainer').innerHTML = `
     <div class="palette-colors">
-      ${currentPalette.map(c => `
-        <div class="palette-color ${previousIds.includes(c.id)?'':'changed'}"
-             data-id="${c.id}" style="background:${c.hex}">
+      ${currentPalette.map(c=>`
+        <div class="palette-color" style="background:${c.hex}" data-id="${c.id}">
           ${lockedColors.has(c.id)?'<div class="lock-icon">🔒</div>':''}
-          <div class="color-hex">#${c.id}</div>
+          <div class="color-label">${c.name}</div>
         </div>
       `).join('')}
     </div>
     <div class="palette-info">
-      <div class="palette-meta">
-        ${lockedColors.size} of ${currentPalette.length} locked
-      </div>
+      <div class="palette-meta">${lockedColors.size} locked</div>
       <div class="palette-actions">
-        <button id="undo" class="btn btn-secondary" ${history.length<2?'disabled':''}>Undo</button>
-        <button id="regen" class="btn btn-secondary"
-          ${allLocked?'disabled title="All colors are locked"':''}>
-          Regenerate
-        </button>
-        <button id="send" class="btn btn-primary">Send</button>
+        <button id="regen" class="btn btn-secondary">Regenerate</button>
       </div>
     </div>
   `;
@@ -255,54 +173,25 @@ function render(previousIds=[]){
     elm.onclick = ()=>{
       const id = parseInt(elm.dataset.id);
       lockedColors.has(id) ? lockedColors.delete(id) : lockedColors.add(id);
-      render(currentPalette.map(c=>c.id));
+      render();
     };
   });
 
   el('regen').onclick = ()=>{
-    if(allLocked) return;
-
-    const prev = currentPalette.map(c=>c.id);
-    const nextPalette = createPalette();
-
-    const nextIds = new Set(nextPalette.map(c=>c.id));
-    lockedColors = new Set(
-      [...lockedColors].filter(id => nextIds.has(id))
-    );
-
-    currentPalette = nextPalette;
-    pushHistory();
-    render(prev);
-  };
-
-  el('undo').onclick = undo;
-
-  el('send').onclick = ()=>{
-    const ids=currentPalette.map(c=>c.id).join(', ');
-    navigator.clipboard.writeText(ids);
-    window.open(
-      `https://wa.me/919828601666?text=${encodeURIComponent(
-        'Hi Creatis — here is my palette: '+ids
-      )}`,
-      '_blank'
-    );
+    currentPalette = createPalette();
+    render();
   };
 }
 
 /* ---------- Generate ---------- */
 el('generateBtn').onclick = ()=>{
-  closePicker();
   lockedColors = new Set([dominantColor]);
-  autoLockedColor = dominantColor;
-
   currentPalette = createPalette();
-  history = [];
-  pushHistory();
-  render([]);
   el('resultsSection').style.display = 'block';
+  render();
 };
 
-el('colorIcon').style.background = colorDatabase[dominantColor-1].hex;
+el('colorIcon').style.background = getColorById(dominantColor).hex;
 </script>
 </body>
 </html>
