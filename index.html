@@ -33,7 +33,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .palette-actions{display:flex;gap:.5rem}
 .footer-note{text-align:center;font-size:.8rem;color:#6b7280;margin-top:1.5rem}
 
-/* ephemeral picker */
+/* Ephemeral picker */
 .color-picker{
   position:absolute;
   background:#fff;
@@ -99,7 +99,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div id="resultsSection" style="display:none">
 <div class="flex mb-2">
 <strong>Generated Palette</strong>
-<span style="font-size:.85rem;color:#6b7280">Tap to lock</span>
+<span style="font-size:.85rem;color:#6b7280">Tap colors to lock / unlock</span>
 </div>
 <div id="paletteContainer" class="palette-container"></div>
 </div>
@@ -111,58 +111,54 @@ Colors may vary depending on the fabric used and can appear different from what 
 </div>
 
 <script>
-const colorDatabase = Array.from({length:36},(_,i)=>({
-  id:i+1,
-  hex:[
-    '#8A7EA6','#E6E2B2','#FCF1EF','#ECC7BA','#7C7C4A','#A05B5F',
-    '#B3A569','#C2B356','#FEE1A1','#000000','#A24A63','#C3788D',
-    '#5F5A3C','#5E7875','#8B3A3A','#7C774D','#7D8985','#6F625A',
-    '#9EBAB5','#C9D6CF','#96928C','#877E72','#A3B2BB','#364A57',
-    '#CD7C73','#839D77','#A47B67','#52684B','#7F3336','#D6CF8D',
-    '#899064','#B15533','#00CFFF','#FF4FA3','#CCFF00','#FFF200'
-  ][i],
-  feeling:['calm','playful','earthy','minimal','bold']
-}));
+const colorDatabase = [
+  '#8A7EA6','#E6E2B2','#FCF1EF','#ECC7BA','#7C7C4A','#A05B5F',
+  '#B3A569','#C2B356','#FEE1A1','#000000','#A24A63','#C3788D',
+  '#5F5A3C','#5E7875','#8B3A3A','#7C774D','#7D8985','#6F625A',
+  '#9EBAB5','#C9D6CF','#96928C','#877E72','#A3B2BB','#364A57',
+  '#CD7C73','#839D77','#A47B67','#52684B','#7F3336','#D6CF8D',
+  '#899064','#B15533','#00CFFF','#FF4FA3','#CCFF00','#FFF200'
+].map((hex,i)=>({id:i+1,hex}));
 
-let dominantColor=3;
-let currentPalette=[];
-let lockedColors=new Set();
-let autoLockedColor=null;
-let activePicker=null;
+let dominantColor = 3;
+let currentPalette = [];
+let lockedColors = new Set();
+let autoLockedColor = null;
+let activePicker = null;
 
-const el=id=>document.getElementById(id);
+const el = id => document.getElementById(id);
 
 /* ---------- Ephemeral Picker ---------- */
 function openPicker(anchor){
   closePicker();
+  const picker = document.createElement('div');
+  picker.className = 'color-picker';
 
-  const picker=document.createElement('div');
-  picker.className='color-picker';
-  picker.innerHTML=colorDatabase.map(c=>
+  picker.innerHTML = colorDatabase.map(c =>
     `<div class="color-swatch" data-id="${c.id}" style="background:${c.hex}"></div>`
   ).join('');
 
-  const r=anchor.getBoundingClientRect();
-  picker.style.top=r.bottom+window.scrollY+8+'px';
-  picker.style.left=r.left+window.scrollX+'px';
+  const r = anchor.getBoundingClientRect();
+  picker.style.top = r.bottom + window.scrollY + 8 + 'px';
+  picker.style.left = r.left + window.scrollX + 'px';
 
   document.body.appendChild(picker);
-  activePicker=picker;
+  activePicker = picker;
 
-  picker.onclick=e=>{
-    if(!e.target.dataset.id) return;
-    dominantColor=parseInt(e.target.dataset.id);
-    el('colorInput').value=dominantColor;
-    el('colorIcon').style.background=colorDatabase[dominantColor-1].hex;
+  picker.onclick = e => {
+    if (!e.target.dataset.id) return;
+    dominantColor = parseInt(e.target.dataset.id);
+    el('colorInput').value = dominantColor;
+    el('colorIcon').style.background = colorDatabase[dominantColor-1].hex;
 
     lockedColors.delete(autoLockedColor);
     lockedColors.add(dominantColor);
-    autoLockedColor=dominantColor;
+    autoLockedColor = dominantColor;
 
     closePicker();
   };
 
-  setTimeout(()=>document.addEventListener('click',outsideClose),0);
+  setTimeout(() => document.addEventListener('click', outsideClose), 0);
 }
 
 function outsideClose(e){
@@ -174,17 +170,17 @@ function outsideClose(e){
 function closePicker(){
   if(activePicker){
     activePicker.remove();
-    activePicker=null;
-    document.removeEventListener('click',outsideClose);
+    activePicker = null;
+    document.removeEventListener('click', outsideClose);
   }
 }
 
-el('colorIcon').onclick=e=>{
+el('colorIcon').onclick = e => {
   e.stopPropagation();
   openPicker(el('colorIcon'));
 };
 
-/* ---------- Palette Logic ---------- */
+/* ---------- Helpers ---------- */
 function shuffle(a){
   const s=[...a];
   for(let i=s.length-1;i>0;i--){
@@ -194,69 +190,89 @@ function shuffle(a){
   return s;
 }
 
+/* ---------- Palette Generation ---------- */
 function createPalette(){
-  const size=parseInt(el('paletteSize').value);
-  const locked=[...lockedColors].map(id=>colorDatabase[id-1]);
-  const slots=size-locked.length;
-  let available=colorDatabase.filter(c=>!lockedColors.has(c.id));
+  const size = parseInt(el('paletteSize').value);
+
+  const locked = [...lockedColors].map(id => colorDatabase[id-1]);
+  const lockedIds = new Set(locked.map(c => c.id));
+  const slots = size - locked.length;
+
+  let available = colorDatabase.filter(c => !lockedIds.has(c.id));
   shuffle(available);
-  return [...locked,...available.slice(0,slots)];
+
+  return [...locked, ...available.slice(0, slots)];
 }
 
+/* ---------- Render ---------- */
 function render(){
   closePicker();
-  const allLocked=currentPalette.every(c=>lockedColors.has(c.id));
+  const allLocked = currentPalette.every(c => lockedColors.has(c.id));
 
-  el('paletteContainer').innerHTML=`
-  <div class="palette-colors">
-    ${currentPalette.map(c=>`
-      <div class="palette-color" data-id="${c.id}" style="background:${c.hex}">
-        ${lockedColors.has(c.id)?'<div class="lock-icon">🔒</div>':''}
-        <div class="color-hex">#${c.id}</div>
-      </div>`).join('')}
-  </div>
-  <div class="palette-info">
-    <div class="palette-meta">${lockedColors.size} of ${currentPalette.length} locked</div>
-    <div class="palette-actions">
-      <button id="regen" class="btn btn-secondary" ${allLocked?'disabled title="All colors are locked"':''}>Regenerate</button>
-      <button id="send" class="btn btn-primary">Send</button>
+  el('paletteContainer').innerHTML = `
+    <div class="palette-colors">
+      ${currentPalette.map(c => `
+        <div class="palette-color" data-id="${c.id}" style="background:${c.hex}">
+          ${lockedColors.has(c.id)?'<div class="lock-icon">🔒</div>':''}
+          <div class="color-hex">#${c.id}</div>
+        </div>
+      `).join('')}
     </div>
-  </div>`;
+
+    <div class="palette-info">
+      <div class="palette-meta">
+        ${lockedColors.size} of ${currentPalette.length} locked
+      </div>
+      <div class="palette-actions">
+        <button id="regen" class="btn btn-secondary"
+          ${allLocked ? 'disabled title="All colors are locked"' : ''}>
+          Regenerate
+        </button>
+        <button id="send" class="btn btn-primary">Send</button>
+      </div>
+    </div>
+  `;
 
   document.querySelectorAll('.palette-color').forEach(elm=>{
-    elm.onclick=()=>{
-      const id=parseInt(elm.dataset.id);
-      lockedColors.has(id)?lockedColors.delete(id):lockedColors.add(id);
+    elm.onclick = ()=>{
+      const id = parseInt(elm.dataset.id);
+      lockedColors.has(id) ? lockedColors.delete(id) : lockedColors.add(id);
       render();
     };
   });
 
-  el('regen').onclick=()=>{
+  el('regen').onclick = ()=>{
     if(allLocked) return;
-    currentPalette=createPalette();
+    currentPalette = createPalette();
     render();
   };
 
-  el('send').onclick=()=>{
-    const ids=currentPalette.map(c=>c.id).join(', ');
+  el('send').onclick = ()=>{
+    const ids = currentPalette.map(c=>c.id).join(', ');
     navigator.clipboard.writeText(ids);
-    window.open(`https://wa.me/919828601666?text=${encodeURIComponent(
-      'Hi Creatis — here is my palette: '+ids
-    )}`,'_blank');
+    window.open(
+      `https://wa.me/919828601666?text=${encodeURIComponent(
+        'Hi Creatis — here is my palette: ' + ids
+      )}`,
+      '_blank'
+    );
   };
 }
 
-el('generateBtn').onclick=()=>{
+/* ---------- Generate ---------- */
+el('generateBtn').onclick = ()=>{
   closePicker();
   lockedColors.clear();
   lockedColors.add(dominantColor);
-  autoLockedColor=dominantColor;
-  currentPalette=createPalette();
+  autoLockedColor = dominantColor;
+
+  currentPalette = createPalette();
   render();
-  el('resultsSection').style.display='block';
+  el('resultsSection').style.display = 'block';
 };
 
-el('colorIcon').style.background=colorDatabase[dominantColor-1].hex;
+/* init */
+el('colorIcon').style.background = colorDatabase[dominantColor-1].hex;
 </script>
 </body>
 </html>
